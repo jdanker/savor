@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct ApetiApp: App {
+    @State private var state = AppState(store: RestaurantStore())
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootTabView()
+                .environment(state)
+                .task { state.load() }
         }
     }
 }

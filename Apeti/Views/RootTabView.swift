@@ -8,11 +8,26 @@
 import SwiftUI
 
 struct RootTabView: View {
+    enum Tab { case home, discover }
+    @State private var selection: Tab = .home
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        TabView(selection: $selection) {
+            HomeListView()
+                .tag(Tab.home)
+                .tabItem {
+                    Label("List", systemImage: "list.bullet")
+                }
+            DiscoverView()
+                .tag(Tab.discover)
+                .tabItem{
+                    Label("Discover", systemImage: "sparkles")
+                }
+        }
     }
 }
 
 #Preview {
     RootTabView()
+        .environment(AppState.preview)
 }

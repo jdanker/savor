@@ -31,3 +31,15 @@ struct Restaurant: Hashable, Codable, Identifiable {
         self.addedAt = Date()
     }
 }
+
+#if DEBUG
+extension Restaurant {
+    static var previewData: [Restaurant] {
+        [
+            Restaurant(name: "Cafe Flora", type: "Brunch", priceLevel: 2),
+            Restaurant(name: "Sushi Garden", type: "Sushi", priceLevel: 3),
+            Restaurant(name: "Ramen House", type: "Japanese", priceLevel: 1)
+        ]
+    }
+}
+#endif
