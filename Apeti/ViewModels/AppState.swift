@@ -11,9 +11,11 @@ import Observation
 final class AppState {
     private(set) var restaurants: [Restaurant] = []
     
+    var draftPlaceID = ""
     var draftName = ""
     var draftType = ""
     var draftPriceLevel: Int? = nil
+    var draftRating = 0.0
     
     var isPresentingAdd = false
     
@@ -27,11 +29,17 @@ final class AppState {
     
     // Mutations
     func commitAdd() {
-        guard let priceLevel = draftPriceLevel, canSave else { return }
+        guard canSave else { return }
+        let placeID = draftPlaceID.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
         let new = Restaurant(
+            placeID: draftPlaceID,
             name: draftName,
-            type: draftType,
-            priceLevel: priceLevel
+            rating: draftRating,
+            primaryType: draftType,
+            priceLevel: draftPriceLevel
+
         )
         restaurants.insert(new, at:0)
         store.save(restaurants)
@@ -60,11 +68,23 @@ final class AppState {
     var canSave: Bool {
         let trimmedName = draftName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else { return false }
-        guard let priceLevel = draftPriceLevel else { return false }
-        return (1...4).contains(priceLevel)
+
+        let trimmedPlaceID = draftPlaceID.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedPlaceID.isEmpty else { return false }
+
+        return true
     }
-    func levelString(_ n: Int) -> String { String(repeating: "$", count: n) }
-    private func clearDrafts() { draftName = ""; draftType = ""; draftPriceLevel = nil }
+    func levelString(_ n: Int?) -> String {
+        guard let n, (1...4).contains(n) else { return "" }
+        return String(repeating: "$", count: n)
+    }
+    private func clearDrafts() {
+        draftPlaceID = ""
+        draftName = ""
+        draftType = ""
+        draftPriceLevel = nil
+        draftRating = 0.0
+    }
 }
 
 #if DEBUG
