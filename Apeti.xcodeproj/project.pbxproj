@@ -34,9 +34,22 @@
 		03DDE0102E7B82C300FDD22C /* ApetiUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApetiUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		032E71A52EFA22B4002F6B5C /* Exceptions for "Apeti" folder in "Apeti" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 03DDDFF82E7B82C200FDD22C /* Apeti */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		03DDDFFB2E7B82C200FDD22C /* Apeti */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				032E71A52EFA22B4002F6B5C /* Exceptions for "Apeti" folder in "Apeti" target */,
+			);
 			path = Apeti;
 			sourceTree = "<group>";
 		};
@@ -283,6 +296,8 @@
 /* Begin XCBuildConfiguration section */
 		03DDE0182E7B82C300FDD22C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 03DDDFFB2E7B82C200FDD22C /* Apeti */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -410,6 +425,7 @@
 				DEVELOPMENT_TEAM = 7QNU64N8ZM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Apeti/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Apeti;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -444,6 +460,7 @@
 				DEVELOPMENT_TEAM = 7QNU64N8ZM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Apeti/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Apeti;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

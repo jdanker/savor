@@ -33,3 +33,6 @@ fastlane/test_output
 
 # macOS system files
 .DS_Store
+
+# Secrets
+Secrets.xcconfig

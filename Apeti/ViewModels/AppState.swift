@@ -32,7 +32,7 @@ final class AppState {
         guard canSave else { return }
         let placeID = draftPlaceID.trimmingCharacters(
             in: .whitespacesAndNewlines
-        )
+         )
         let new = Restaurant(
             placeID: draftPlaceID,
             name: draftName,
