@@ -27,9 +27,11 @@ final class PlacesService {
     /// - Parameter query: The search string from the user
     /// - Returns: Result containing array of suggestions or error
     func searchRestaurants(query: String) async -> Result<[AutocompletePlaceSuggestion], Error> {
-        // TODO(human): Implement autocomplete search logic
-        // 1. Create or reuse session token (check if sessionToken is nil, create new AutocompleteSessionToken if needed)
+        if sessionToken == nil {
+            sessionToken = AutocompleteSessionToken()
+        }
         // 2. Set up AutocompleteRequest with the query and session token
+        
         // 3. Configure filter to include only restaurant types (.restaurant, .cafe, .bar, .bakery)
         // 4. Use do-catch to call client.fetchAutocompleteSuggestions(with: request)
         // 5. Return Result.success with suggestions array or Result.failure with caught error
