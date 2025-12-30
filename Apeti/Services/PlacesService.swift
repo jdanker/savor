@@ -30,13 +30,37 @@ final class PlacesService {
         if sessionToken == nil {
             sessionToken = AutocompleteSessionToken()
         }
-        // 2. Set up AutocompleteRequest with the query and session token
-        
-        // 3. Configure filter to include only restaurant types (.restaurant, .cafe, .bar, .bakery)
-        // 4. Use do-catch to call client.fetchAutocompleteSuggestions(with: request)
-        // 5. Return Result.success with suggestions array or Result.failure with caught error
+        // Configure filter to include only restaurant types
+        let filter = AutocompleteFilter(
+            types: [.restaurant, .cafe, .bar, .bakery]
+        )
 
-        return .success([])
+        // Set up AutocompleteRequest with the query, session token, and filter
+        let request = AutocompleteRequest(
+            query: query,
+            sessionToken: sessionToken,
+            filter: filter
+        )
+
+        // Call the API and get the result
+        let result = await client.fetchAutocompleteSuggestions(with: request)
+
+        // Extract place suggestions and return
+        switch result {
+        case .success(let response):
+            // TODO: Use compactMap to extract AutocompletePlaceSuggestion from .place cases
+            let placeSuggestions = response.compactMap {
+                suggestion -> AutocompletePlaceSuggestion?  in
+                if case .place(let placeSuggestion) = suggestion {
+                    return placeSuggestion
+                }
+                return nil
+            }
+            return .success(placeSuggestions)
+
+        case .failure(let error):
+            return .failure(error)
+        }
     }
 
     /// Fetch full place details for a selected suggestion
