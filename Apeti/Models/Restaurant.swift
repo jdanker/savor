@@ -15,7 +15,7 @@ struct Restaurant: Hashable, Codable, Identifiable {
     let placeID: String
     var name: String
     var rating: Double
-    var primaryType: String
+    var types: [String]
     var priceLevel: Int?
     
     // Metadata
@@ -26,7 +26,7 @@ struct Restaurant: Hashable, Codable, Identifiable {
         placeID: String,
         name: String,
         rating: Double,
-        primaryType: String,
+        types: [String],
         addedAt: Date = Date(),
         priceLevel: Int?
     ) {
@@ -34,7 +34,7 @@ struct Restaurant: Hashable, Codable, Identifiable {
         self.placeID = placeID
         self.name = name
         self.rating = rating
-        self.primaryType = primaryType
+        self.types = types
         self.addedAt = addedAt
         self.priceLevel = priceLevel
     }
@@ -48,21 +48,21 @@ extension Restaurant {
                 placeID: "preview.cafe-flora",
                 name: "Cafe Flora",
                 rating: 4.6,
-                primaryType: "cafe",
+                types: ["cafe", "restaurant"],
                 priceLevel: 2
             ),
             Restaurant(
                 placeID: "preview.sushi-garden",
                 name: "Sushi Garden",
                 rating: 4.2,
-                primaryType: "restaurant",
+                types: ["restaurant", "japanese_restaurant"],
                 priceLevel: 3
             ),
             Restaurant(
                 placeID: "preview.ramen-house",
                 name: "Ramen House",
                 rating: 4.4,
-                primaryType: "restaurant",
+                types: ["restaurant", "ramen_restaurant"],
                 priceLevel: nil
             )
         ]

@@ -94,19 +94,20 @@ final class PlacesService {
 
         switch detailsResult {
         case .success(let place):
-            // TODO(human): Implement mapping logic from Google Place to Restaurant model
-            // 1. Extract displayName (or use suggestion.title as fallback)
-            // 2. Extract rating (default to 0.0 if nil)
-            // 3. Extract priceLevel (can be nil)
-            // 4. Extract primaryType from types array (use first type or "restaurant" as default)
-            // 5. Create and return Restaurant object
+            // Extract fields from Place object
+            let name = place.displayName ?? "Unknown"
+            let rating = place.rating ?? 0.0
+            let priceLevel = place.priceLevel
+
+            // Convert Set<PlaceType> to [String]
+            let types = place.types.map { String(describing: $0) }
 
             let restaurant = Restaurant(
                 placeID: suggestion.placeID,
-                name: "TODO",
-                rating: 0.0,
-                primaryType: "restaurant",
-                priceLevel: nil
+                name: name,
+                rating: rating,
+                types: types,
+                priceLevel: priceLevel
             )
             return .success(restaurant)
 

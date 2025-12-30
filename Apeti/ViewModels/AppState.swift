@@ -37,9 +37,8 @@ final class AppState {
             placeID: draftPlaceID,
             name: draftName,
             rating: draftRating,
-            primaryType: draftType,
+            types: [draftType],  // Wrap single type in array
             priceLevel: draftPriceLevel
-
         )
         restaurants.insert(new, at:0)
         store.save(restaurants)
