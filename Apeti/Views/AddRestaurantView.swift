@@ -6,69 +6,102 @@
 //
 
 import SwiftUI
+import GooglePlacesSwift
 
 struct AddRestaurantView: View {
     @Environment(AppState.self) private var state
-    
-    // 1) Enum describing each focusable field
-    private enum Field: Hashable {
-        case name
-        case type
-    }
-    
-    @FocusState private var focusedField: Field?
+
+    // MARK: - Local State
+    @State private var suggestions: [AutocompletePlaceSuggestion] = []
+    @State private var searchTask: Task<Void, Never>?
 
     var body: some View {
         @Bindable var state = state
 
         NavigationStack {
-            Form {
-                Section {
-                    TextField("Name", text: $state.draftName)
-                        .focused($focusedField, equals: .name)
-                        .submitLabel(.next) // 4) Show "Next" on keyboard
-                    TextField("Type", text: $state.draftType)
-                        .focused($focusedField, equals: .type)
-                        .submitLabel(.done) // 4) Show "Done" on keyboard
+            VStack(spacing: 0) {
+                // Search TextField
+                TextField("Search for a restaurant...", text: $state.searchQuery)
+                    .textFieldStyle(.roundedBorder)
+                    .padding()
+                    .autocorrectionDisabled()
 
-                    Picker("Price", selection: $state.draftPriceLevel) {
-                        Text("Select").tag(Int?.none)
-                        ForEach(1...4, id: \.self) { value in
-                            Text(state.levelString(value)).tag(Int?.some(value))
+                // Content: Suggestions, Loading, or Error
+                if state.isLoadingPlaceDetails {
+                    // Loading state - show spinner
+                    VStack {
+                        ProgressView()
+                        Text("Loading restaurant details...")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                } else if let error = state.placesError {
+                    // Error state - show error message
+                    VStack(spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.largeTitle)
+                            .foregroundStyle(.orange)
+                        Text(error)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                } else if suggestions.isEmpty && !state.searchQuery.isEmpty {
+                    // Empty state - no results
+                    ContentUnavailableView(
+                        "No restaurants found",
+                        systemImage: "magnifyingglass",
+                        description: Text("Try a different search term")
+                    )
+
+                } else {
+                    // Suggestions List
+                    List(suggestions, id: \.placeID) { suggestion in
+                        Button {
+                            // TODO(human): Handle suggestion selection
+                            // 1. Call Task { await state.selectPlace(suggestion: suggestion) }
+                            // 2. Clear the suggestions array after selection
+                        } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(suggestion.attributedPrimaryText?.string ?? "Unknown")
+                                    .font(.headline)
+                                if let fullText = suggestion.attributedFullText {
+                                    Text(fullText.string)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                         }
                     }
-                    .pickerStyle(.segmented)
+                    .listStyle(.plain)
                 }
             }
-            
-            // 5) Move to next field when Return is pressed
-            .onSubmit {
-                switch focusedField {
-                case .name:
-                    focusedField = .type            // Advance to Type
-                case .type:
-                    focusedField = nil              // Option A: dismiss keyboard
-                    // Option B: immediately save if you want:
-                    // if state.canSave { state.commitAdd() }
-                default:
-                    break
-                }
-            }
-            .onAppear { focusedField = .name }
-            .navigationTitle("New Spot")
+            .navigationTitle("Add Restaurant")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { state.cancelAdd() }
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { state.commitAdd() }
-                        .disabled(!state.canSave)
-                }
+            }
+            .onChange(of: state.searchQuery) { oldValue, newValue in
+                // TODO(human): Implement debounced search
+                // 1. Cancel the existing searchTask if it exists
+                // 2. If newValue is empty, clear suggestions and return early
+                // 3. Create a new Task and assign it to searchTask
+                // 4. Inside the task:
+                //    - Sleep for 300ms using: try? await Task.sleep(for: .milliseconds(300))
+                //    - Check if task was cancelled: guard !Task.isCancelled else { return }
+                //    - Call PlacesService to search (you'll need access to it - see note below)
+                //    - Update suggestions array with results
             }
         }
     }
 }
-
 
 #Preview {
     AddRestaurantView()

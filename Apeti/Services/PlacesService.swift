@@ -96,8 +96,25 @@ final class PlacesService {
         case .success(let place):
             // Extract fields from Place object
             let name = place.displayName ?? "Unknown"
-            let rating = place.rating ?? 0.0
-            let priceLevel = place.priceLevel
+            let rating = place.rating.map { Double($0) } ?? 0.0
+
+            // Convert PriceLevel enum to Int? (nil, or 1-4 for $-$$$$)
+            let priceLevel: Int? = {
+                switch place.priceLevel {
+                case .free, .unspecified:
+                    return nil
+                case .inexpensive:
+                    return 1
+                case .moderate:
+                    return 2
+                case .expensive:
+                    return 3
+                case .veryExpensive:
+                    return 4
+                @unknown default:
+                    return nil  // Handle future price levels gracefully
+                }
+            }()
 
             // Convert Set<PlaceType> to [String]
             let types = place.types.map { String(describing: $0) }

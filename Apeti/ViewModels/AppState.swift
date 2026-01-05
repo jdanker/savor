@@ -6,23 +6,33 @@
 //
 import Foundation
 import Observation
+import GooglePlacesSwift
+
 @Observable
 @MainActor
 final class AppState {
     private(set) var restaurants: [Restaurant] = []
-    
+
+    // MARK: - Manual Form Properties (legacy - can remove when autocomplete is complete)
     var draftPlaceID = ""
     var draftName = ""
     var draftType = ""
     var draftPriceLevel: Int? = nil
     var draftRating = 0.0
-    
+
+    // MARK: - Autocomplete Properties
+    var searchQuery = ""
+    var isLoadingPlaceDetails = false
+    var placesError: String?
+
     var isPresentingAdd = false
-    
+
     private let store: RestaurantStore
-    
-    init(store: RestaurantStore) {
+    private let placesService: PlacesService
+
+    init(store: RestaurantStore, placesService: PlacesService? = nil) {
         self.store = store
+        self.placesService = placesService ?? PlacesService()
     }
     
     func load() { restaurants = store.load() }
@@ -48,7 +58,28 @@ final class AppState {
     
     func cancelAdd() {
         clearDrafts()
+        searchQuery = ""
+        placesError = nil
         isPresentingAdd = false
+    }
+
+    // MARK: - Autocomplete Methods
+
+    /// Called when user selects a restaurant from autocomplete suggestions
+    func selectPlace(suggestion: AutocompletePlaceSuggestion) async {
+        isLoadingPlaceDetails = true
+        let selectedPlace = await placesService.createRestaurant(from: suggestion)
+        switch selectedPlace {
+        case .success(let restaurant):
+            restaurants.insert(restaurant, at: 0)
+            store.save(restaurants)
+            isPresentingAdd = false
+        case .failure(let error):
+            placesError = "Could not load restaurant details, please try again"
+            
+        }
+        
+        isLoadingPlaceDetails = false
     }
     
     func remove(id: UUID) {
@@ -89,7 +120,7 @@ final class AppState {
 #if DEBUG
 extension AppState {
     static var preview: AppState {
-        let state = AppState(store: RestaurantStore())
+        let state = AppState(store: RestaurantStore(), placesService: PlacesService())
         state.restaurants = Restaurant.previewData
         return state
     }

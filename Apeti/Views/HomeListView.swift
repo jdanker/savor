@@ -18,7 +18,7 @@ struct HomeListView: View {
                             VStack(alignment: .leading) {
                                 Text(restaurant.name)
                                     .font(.headline)
-                                Text("\(restaurant.type) • \(state.levelString(restaurant.priceLevel))")
+                                Text("\(restaurant.types.first ?? "restaurant") • \(state.levelString(restaurant.priceLevel))")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
