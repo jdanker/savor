@@ -63,18 +63,19 @@ struct AddRestaurantView: View {
                     // Suggestions List
                     List(suggestions, id: \.placeID) { suggestion in
                         Button {
-                            // TODO(human): Handle suggestion selection
-                            // 1. Call Task { await state.selectPlace(suggestion: suggestion) }
-                            // 2. Clear the suggestions array after selection
+                            // Handle suggestion selection
+                            Task { @MainActor in
+                                await state.selectPlace(suggestion: suggestion)
+                                // Clear the suggestions array after selection
+                                suggestions.removeAll()
+                            }
                         } label: {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(suggestion.attributedPrimaryText?.string ?? "Unknown")
+                                Text(suggestion.attributedPrimaryText)
                                     .font(.headline)
-                                if let fullText = suggestion.attributedFullText {
-                                    Text(fullText.string)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
+                                Text(suggestion.attributedFullText)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     }
@@ -89,15 +90,32 @@ struct AddRestaurantView: View {
                 }
             }
             .onChange(of: state.searchQuery) { oldValue, newValue in
-                // TODO(human): Implement debounced search
-                // 1. Cancel the existing searchTask if it exists
-                // 2. If newValue is empty, clear suggestions and return early
-                // 3. Create a new Task and assign it to searchTask
-                // 4. Inside the task:
-                //    - Sleep for 300ms using: try? await Task.sleep(for: .milliseconds(300))
-                //    - Check if task was cancelled: guard !Task.isCancelled else { return }
-                //    - Call PlacesService to search (you'll need access to it - see note below)
-                //    - Update suggestions array with results
+                // Cancel the existing searchTask if it exists
+                searchTask?.cancel()
+
+                // If newValue is empty, clear suggestions and return early
+                guard !newValue.isEmpty else {
+                    suggestions = []
+                    return
+                }
+
+                // Create a new Task to perform debounced async search
+                searchTask = Task { @MainActor in
+                    // Debounce
+                    try? await Task.sleep(for: .milliseconds(300))
+                    // If the task was cancelled during the debounce, bail out
+                    guard !Task.isCancelled else { return }
+
+                    let placesService = PlacesService()
+                    let result = await placesService.searchRestaurants(query: newValue)
+
+                    switch result {
+                    case .success(let results):
+                        suggestions = results
+                    case .failure:
+                        suggestions = []
+                    }
+                }
             }
         }
     }

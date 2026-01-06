@@ -11,14 +11,8 @@ import GooglePlacesSwift
 @MainActor
 final class PlacesService {
     // MARK: - Properties
-    private let client: PlacesClient
+    private lazy var client: PlacesClient = PlacesClient.shared
     private var sessionToken: AutocompleteSessionToken?
-
-    // MARK: - Initialization
-    // Use optional parameter so we can default inside MainActor context
-    init(client: PlacesClient? = nil) {
-        self.client = client ?? PlacesClient.shared
-    }
 
 
     // MARK: - Public Methods

@@ -28,11 +28,10 @@ final class AppState {
     var isPresentingAdd = false
 
     private let store: RestaurantStore
-    private let placesService: PlacesService
+    private let placesService = PlacesService()
 
-    init(store: RestaurantStore, placesService: PlacesService? = nil) {
+    init(store: RestaurantStore) {
         self.store = store
-        self.placesService = placesService ?? PlacesService()
     }
     
     func load() { restaurants = store.load() }
@@ -120,7 +119,7 @@ final class AppState {
 #if DEBUG
 extension AppState {
     static var preview: AppState {
-        let state = AppState(store: RestaurantStore(), placesService: PlacesService())
+        let state = AppState(store: RestaurantStore())
         state.restaurants = Restaurant.previewData
         return state
     }
