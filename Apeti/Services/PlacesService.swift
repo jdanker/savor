@@ -111,7 +111,7 @@ final class PlacesService {
             }()
 
             // Convert Set<PlaceType> to [String]
-            let types = place.types.map { String(describing: $0) }
+            let types = place.types.map { $0.rawValue}
 
             let restaurant = Restaurant(
                 placeID: suggestion.placeID,

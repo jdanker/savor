@@ -40,6 +40,26 @@ struct Restaurant: Hashable, Codable, Identifiable {
     }
 }
 
+// helper to properly format restaurant types to be more human readable
+extension Restaurant {
+    var primaryTypeDisplay: String {
+        guard let firstType = types.first else { return "Restaurant" }
+        return Restaurant.formatPlaceType(firstType)
+    }
+    
+    static func formatPlaceType(_ rawType: String) -> String {
+        let withoutSuffix = rawType
+            .replacingOccurrences(of: "_restaurant", with: "")
+        // handle edge case if type = restaurant
+        guard !withoutSuffix.isEmpty else { return "Restaurant" }
+        
+        return withoutSuffix
+            .split(separator: "_")
+            .map { $0.capitalized }
+            .joined(separator: " ")
+    }
+}
+
 #if DEBUG
 extension Restaurant {
     static var previewData: [Restaurant] {

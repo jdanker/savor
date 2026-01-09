@@ -72,6 +72,8 @@ final class AppState {
         case .success(let restaurant):
             restaurants.insert(restaurant, at: 0)
             store.save(restaurants)
+            searchQuery = ""
+            placesError = nil
             isPresentingAdd = false
         case .failure(let error):
             placesError = "Could not load restaurant details, please try again"
@@ -79,6 +81,8 @@ final class AppState {
         }
         
         isLoadingPlaceDetails = false
+        
+        
     }
     
     func remove(id: UUID) {

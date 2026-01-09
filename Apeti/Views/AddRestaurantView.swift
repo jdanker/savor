@@ -14,6 +14,7 @@ struct AddRestaurantView: View {
     // MARK: - Local State
     @State private var suggestions: [AutocompletePlaceSuggestion] = []
     @State private var searchTask: Task<Void, Never>?
+    @FocusState private var isSeachFieldFocused: Bool
 
     var body: some View {
         @Bindable var state = state
@@ -25,6 +26,7 @@ struct AddRestaurantView: View {
                     .textFieldStyle(.roundedBorder)
                     .padding()
                     .autocorrectionDisabled()
+                    .focused($isSeachFieldFocused)
 
                 // Content: Suggestions, Loading, or Error
                 if state.isLoadingPlaceDetails {
@@ -88,6 +90,9 @@ struct AddRestaurantView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { state.cancelAdd() }
                 }
+            }
+            .onAppear {
+                isSeachFieldFocused = true
             }
             .onChange(of: state.searchQuery) { oldValue, newValue in
                 // Cancel the existing searchTask if it exists
