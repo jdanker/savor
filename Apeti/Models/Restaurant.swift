@@ -17,11 +17,11 @@ struct Restaurant: Hashable, Codable, Identifiable {
     var rating: Double
     var types: [String]
     var priceLevel: Int?
-    
+
     // Metadata
     var addedAt: Date
-    
-    init (
+
+    init(
         id: UUID = UUID(),
         placeID: String,
         name: String,
@@ -42,18 +42,54 @@ struct Restaurant: Hashable, Codable, Identifiable {
 
 // helper to properly format restaurant types to be more human readable
 extension Restaurant {
-    var primaryTypeDisplay: String {
-        guard let firstType = types.first else { return "Restaurant" }
-        return Restaurant.formatPlaceType(firstType)
+    private static func typePriority(_ type: String) -> Int {
+        switch type {
+        case _ where ["establishment", "point_of_interest"].contains(type):
+            return 0
+
+        case _ where type.hasSuffix("_restaurant") && type != "restaurant":
+            return 100
+
+        case _ where type.hasSuffix("_shop"):
+            return 100
+
+        case _ where type.hasSuffix("_cafe") && type != "cafe":
+            return 100
+
+        case "bar_and_grill", "steak_house", "ice_cream_shop", "tea_house",
+            "wine_bar":
+            return 100
+
+        case "cafe", "bakery", "bar", "pub", "diner", "cafeteria", "food_court":
+            return 50
+
+        case "restaurant", "meal_delivery", "meal_takeaway":
+            return 25
+
+        default:
+            return 75
+        }
+
     }
-    
+
+    var primaryTypeDisplay: String {
+        guard !types.isEmpty else { return "Restaurant" }
+        let sortedTypes = types.sorted {
+            Self.typePriority($0) > Self.typePriority($1)
+        }
+
+        return Restaurant.formatPlaceType(sortedTypes.first!)
+    }
+
     static func formatPlaceType(_ rawType: String) -> String {
-        let withoutSuffix = rawType
+        let withoutSuffix =
+            rawType
             .replacingOccurrences(of: "_restaurant", with: "")
         // handle edge case if type = restaurant
         guard !withoutSuffix.isEmpty else { return "Restaurant" }
-        
-        return withoutSuffix
+
+        return
+            withoutSuffix
             .split(separator: "_")
             .map { $0.capitalized }
             .joined(separator: " ")
@@ -61,31 +97,31 @@ extension Restaurant {
 }
 
 #if DEBUG
-extension Restaurant {
-    static var previewData: [Restaurant] {
-        [
-            Restaurant(
-                placeID: "preview.cafe-flora",
-                name: "Cafe Flora",
-                rating: 4.6,
-                types: ["cafe", "restaurant"],
-                priceLevel: 2
-            ),
-            Restaurant(
-                placeID: "preview.sushi-garden",
-                name: "Sushi Garden",
-                rating: 4.2,
-                types: ["restaurant", "japanese_restaurant"],
-                priceLevel: 3
-            ),
-            Restaurant(
-                placeID: "preview.ramen-house",
-                name: "Ramen House",
-                rating: 4.4,
-                types: ["restaurant", "ramen_restaurant"],
-                priceLevel: nil
-            )
-        ]
+    extension Restaurant {
+        static var previewData: [Restaurant] {
+            [
+                Restaurant(
+                    placeID: "preview.cafe-flora",
+                    name: "Cafe Flora",
+                    rating: 4.6,
+                    types: ["cafe", "restaurant"],
+                    priceLevel: 2
+                ),
+                Restaurant(
+                    placeID: "preview.sushi-garden",
+                    name: "Sushi Garden",
+                    rating: 4.2,
+                    types: ["restaurant", "japanese_restaurant"],
+                    priceLevel: 3
+                ),
+                Restaurant(
+                    placeID: "preview.ramen-house",
+                    name: "Ramen House",
+                    rating: 4.4,
+                    types: ["restaurant", "ramen_restaurant"],
+                    priceLevel: nil
+                ),
+            ]
+        }
     }
-}
 #endif
