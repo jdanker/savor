@@ -1,58 +1,34 @@
 import SwiftUI
 
 struct RestaurantDetailView: View {
-    // MARK: - Properties
     let restaurant: Restaurant
 
-    // MARK: - Body
-
     var body: some View {
-        // TODO: Wrap everything in a ScrollView
-        // Syntax: ScrollView { /* content */ }
-        // Why? Content might be longer than screen, needs to scroll
-        // TODO: Add ScrollView here ⬇️
-
-            // TODO: Add a VStack with alignment: .leading and spacing: 24
-            // Syntax: VStack(alignment: .leading, spacing: 24) { /* content */ }
-            // Why .leading? Left-aligns all sections (standard for detail views)
-            // TODO: Add VStack here ⬇️
-
-                // Section 1: Header with name and type
-                // TODO: Add a VStack for the header (alignment: .leading, spacing: 8)
-                // Inside it, add:
-                //   - Text(restaurant.name) with font .title
-                //   - Text(restaurant.primaryTypeDisplay) with font .headline and foregroundStyle .secondary
-                // TODO: Create header VStack here ⬇️
-
-
-                // Section 2: Star Rating Display
-                // TODO: Call the starRatingView helper (we'll create it below)
-                // Syntax: functionName(parameter: value)
-                // TODO: Add starRatingView(rating: restaurant.rating) here ⬇️
-
-
-                // Section 3: Price Level
-                // TODO: Add a Text showing the price level
-                // Use AppState's levelString helper (but we don't have access to it here yet...)
-                // For now, just show the raw priceLevel number or skip this section
-                // We'll come back to this
-
-
-            // TODO: Close VStack
-            // TODO: Add .padding() modifier to the VStack
-            // This adds space around all edges
-
-        // TODO: Close ScrollView
-        // TODO: Add .navigationTitle(restaurant.name) to the ScrollView
-        // This sets the title in the sheet's top bar
-        // TODO: Add .navigationBarTitleDisplayMode(.inline)
-        // This keeps the title small (not large style)
+        ScrollView {
+            VStack(alignment: .leading, spacing:24) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(restaurant.name)
+                        .font(.title)
+                    Text(restaurant.primaryTypeDisplay)
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                }
+                
+                starRatingView(rating: restaurant.rating)
+                
+                // TODO: update this to use the helper function in appstate
+                Text("\(restaurant.priceLevel ?? 0)")
+                
+            }
+            .padding()
+            
+        }
+        .navigationTitle(restaurant.name)
+        .navigationBarTitleDisplayMode(.inline)
+        
     }
 
     // MARK: - Helper Views
-
-    // This is a helper function that returns a View
-    // It creates the star rating display
     private func starRatingView(rating: Double) -> some View {
         HStack(spacing: 4) {
             // TODO: Use ForEach to create 5 stars
