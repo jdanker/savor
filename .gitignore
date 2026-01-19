@@ -36,3 +36,6 @@ fastlane/test_output
 
 # Secrets
 Secrets.xcconfig
+
+#Claude 
+.claude

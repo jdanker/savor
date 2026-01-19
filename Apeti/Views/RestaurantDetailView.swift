@@ -5,58 +5,94 @@ struct RestaurantDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing:24) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(restaurant.name)
-                        .font(.title)
-                    Text(restaurant.primaryTypeDisplay)
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                }
-                
-                starRatingView(rating: restaurant.rating)
-                
-                // TODO: update this to use the helper function in appstate
-                Text("\(restaurant.priceLevel ?? 0)")
-                
+            VStack(alignment: .leading, spacing: 24) {
+                // MARK: - Hero Section
+                heroSection
+
+                Divider()
+
+                // MARK: - Info Section
+                infoSection
             }
             .padding()
-            
         }
-        .navigationTitle(restaurant.name)
         .navigationBarTitleDisplayMode(.inline)
-        
+    }
+
+    // MARK: - Hero Section
+    private var heroSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(restaurant.name)
+                .font(.largeTitle)
+                .fontWeight(.bold)
+
+            // TODO(human): Implement metadataRow styling
+            metadataRow
+        }
+    }
+
+    // MARK: - Metadata Row
+    private var metadataRow: some View {
+        HStack(spacing: 8) {
+            Text(restaurant.primaryTypeDisplay)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .layoutPriority(-1)  // yields space to other elements first
+
+            if !restaurant.priceLevelDisplay.isEmpty {
+                Text("•")
+                    .foregroundStyle(.tertiary)
+                Text(restaurant.priceLevelDisplay)
+                    .foregroundStyle(.green)
+            }
+
+            Text("•")
+                .foregroundStyle(.tertiary)
+
+            starRatingView(rating: restaurant.rating)
+                .fixedSize()  // prevents compression of stars + rating
+        }
+        .font(.subheadline)
+    }
+
+    // MARK: - Info Section
+    private var infoSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Label {
+                Text("Added \(restaurant.addedAt.formatted(date: .abbreviated, time: .omitted))")
+            } icon: {
+                Image(systemName: "calendar")
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        }
     }
 
     // MARK: - Helper Views
     private func starRatingView(rating: Double) -> some View {
         HStack(spacing: 4) {
-            // TODO: Use ForEach to create 5 stars
-            // Syntax: ForEach(range, id: \.self) { index in /* star view */ }
-            // Range should be 1...5 (numbers 1 through 5)
-            // TODO: Add ForEach(1...5, id: \.self) { index in } here ⬇️
+            ForEach(1...5, id: \.self) { index in
+                let filled = min(max(rating - Double(index - 1), 0), 1)
 
-                // TODO: Inside ForEach, add an Image with systemName "star.fill"
-                // Syntax: Image(systemName: "name")
-                // TODO: Add the star image here ⬇️
+                ZStack(alignment: .leading) {
+                    Image(systemName: "star")
+                        .foregroundStyle(.gray.opacity(0.3))
 
-                // TODO: Add .foregroundStyle modifier to the star
-                // Logic: If the current star index <= rating, show orange (.orange)
-                //        Otherwise, show gray (.gray.opacity(0.3))
-                // Syntax for conditional: index <= Int(rating) ? .orange : .gray.opacity(0.3)
-                // Why Int(rating)? Converts 4.5 to 4, so 4 stars are filled
-                // TODO: Add .foregroundStyle with conditional here ⬇️
+                    GeometryReader { geo in
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(.orange)
+                            .frame(width: geo.size.width * filled, alignment: .leading)
+                            .clipped()
+                    }
+                }
+                .font(.subheadline)
+                .frame(width: 14, height: 14)
+            }
 
-                // TODO: Add .font(.subheadline) to the star for sizing
+            Text("\(rating, specifier: "%.1f")")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
 
-            // TODO: Close ForEach
-
-            // TODO: After the ForEach, add a Text showing the numeric rating
-            // Syntax: Text("\(rating, specifier: "%.1f")")
-            // The specifier formats it to 1 decimal place (e.g., "4.5")
-            // TODO: Add rating Text here ⬇️
-
-            // TODO: Add .font(.subheadline) and .foregroundStyle(.secondary) to the Text
         }
     }
 }
@@ -64,10 +100,7 @@ struct RestaurantDetailView: View {
 // MARK: - Preview
 
 #Preview {
-    // TODO: Create a preview using the preview data from Restaurant
-    // Syntax: ViewName(parameter: value)
-    // Use Restaurant.previewData.first! to get a sample restaurant
-    // Wrap it in NavigationStack since the view uses navigation modifiers
-    // TODO: Add preview here ⬇️
-
+    NavigationStack {
+        RestaurantDetailView(restaurant: Restaurant.previewData.first!)
+    }
 }

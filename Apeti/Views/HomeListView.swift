@@ -52,7 +52,7 @@ struct HomeListView: View {
         }
         .sheet(item: $selectedRestaurant) { restaurant in
             RestaurantDetailView(restaurant: restaurant)
-                .presentationDetent([.fraction(0.8), .large])
+                .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
     }

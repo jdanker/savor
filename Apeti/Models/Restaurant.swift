@@ -94,6 +94,12 @@ extension Restaurant {
             .map { $0.capitalized }
             .joined(separator: " ")
     }
+
+    /// Formats price level (1-4) as dollar signs, nil/invalid returns empty string
+    var priceLevelDisplay: String {
+        guard let level = priceLevel, (1...4).contains(level) else { return "" }
+        return String(repeating: "$", count: level)
+    }
 }
 
 #if DEBUG
@@ -101,18 +107,18 @@ extension Restaurant {
         static var previewData: [Restaurant] {
             [
                 Restaurant(
-                    placeID: "preview.cafe-flora",
-                    name: "Cafe Flora",
-                    rating: 4.6,
-                    types: ["cafe", "restaurant"],
-                    priceLevel: 2
-                ),
-                Restaurant(
                     placeID: "preview.sushi-garden",
                     name: "Sushi Garden",
                     rating: 4.2,
                     types: ["restaurant", "japanese_restaurant"],
                     priceLevel: 3
+                ),
+                Restaurant(
+                    placeID: "preview.cafe-flora",
+                    name: "Cafe Flora",
+                    rating: 4.6,
+                    types: ["cafe", "restaurant"],
+                    priceLevel: 2
                 ),
                 Restaurant(
                     placeID: "preview.ramen-house",
