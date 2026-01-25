@@ -63,7 +63,14 @@ final class PlacesService {
     func fetchPlaceDetails(placeID: String) async -> Result<Place, Error> {
         do {
             // Request only the fields we need to minimize API costs
-            let fields: [PlaceProperty] = [.displayName, .rating, .priceLevel, .types]
+            let fields: [PlaceProperty] = [
+                .displayName,
+                .rating,
+                .priceLevel,
+                .types,
+                .editorialSummary,
+                .photos
+            ]
 
             let request = FetchPlaceRequest(placeID: placeID, placeProperties: fields)
             let result: Result<Place, PlacesError> = try await client.fetchPlace(with: request)
@@ -111,14 +118,18 @@ final class PlacesService {
             }()
 
             // Convert Set<PlaceType> to [String]
-            let types = place.types.map { $0.rawValue}
+            let types = place.types.map { $0.rawValue }
+
+            // Extract editorial summary (may be nil)
+            let editorialSummary = place.editorialSummary
 
             let restaurant = Restaurant(
                 placeID: suggestion.placeID,
                 name: name,
                 rating: rating,
                 types: types,
-                priceLevel: priceLevel
+                priceLevel: priceLevel,
+                editorialSummary: editorialSummary
             )
             return .success(restaurant)
 

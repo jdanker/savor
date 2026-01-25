@@ -9,6 +9,13 @@ struct RestaurantDetailView: View {
                 // MARK: - Hero Section
                 heroSection
 
+                // MARK: - Editorial Summary
+                if let summary = restaurant.editorialSummary, !summary.isEmpty {
+                    Text(summary)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                }
+
                 Divider()
 
                 // MARK: - Info Section
@@ -26,7 +33,6 @@ struct RestaurantDetailView: View {
                 .font(.largeTitle)
                 .fontWeight(.bold)
 
-            // TODO(human): Implement metadataRow styling
             metadataRow
         }
     }

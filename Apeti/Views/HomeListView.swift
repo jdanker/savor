@@ -28,6 +28,8 @@ struct HomeListView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
                             .onTapGesture {
                                 selectedRestaurant = restaurant
                             }

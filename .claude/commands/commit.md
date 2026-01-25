@@ -26,8 +26,6 @@ Based on the changes above, create a git commit following these guidelines:
    ```bash
    git commit -m "$(cat <<'EOF'
    Your commit message here
-
-   Co-Authored-By: Claude <noreply@anthropic.com>
    EOF
    )"
    ```

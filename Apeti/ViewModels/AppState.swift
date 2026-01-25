@@ -47,7 +47,8 @@ final class AppState {
             name: draftName,
             rating: draftRating,
             types: [draftType],  // Wrap single type in array
-            priceLevel: draftPriceLevel
+            priceLevel: draftPriceLevel,
+            editorialSummary: nil  // Manual entry has no editorial summary
         )
         restaurants.insert(new, at:0)
         store.save(restaurants)

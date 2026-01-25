@@ -17,6 +17,7 @@ struct Restaurant: Hashable, Codable, Identifiable {
     var rating: Double
     var types: [String]
     var priceLevel: Int?
+    var editorialSummary: String?
 
     // Metadata
     var addedAt: Date
@@ -28,7 +29,8 @@ struct Restaurant: Hashable, Codable, Identifiable {
         rating: Double,
         types: [String],
         addedAt: Date = Date(),
-        priceLevel: Int?
+        priceLevel: Int?,
+        editorialSummary: String?
     ) {
         self.id = id
         self.placeID = placeID
@@ -37,6 +39,7 @@ struct Restaurant: Hashable, Codable, Identifiable {
         self.types = types
         self.addedAt = addedAt
         self.priceLevel = priceLevel
+        self.editorialSummary = editorialSummary
     }
 }
 
@@ -111,21 +114,24 @@ extension Restaurant {
                     name: "Sushi Garden",
                     rating: 4.2,
                     types: ["restaurant", "japanese_restaurant"],
-                    priceLevel: 3
+                    priceLevel: 3,
+                    editorialSummary: "Fresh omakase and creative rolls in a minimalist setting."
                 ),
                 Restaurant(
                     placeID: "preview.cafe-flora",
                     name: "Cafe Flora",
                     rating: 4.6,
                     types: ["cafe", "restaurant"],
-                    priceLevel: 2
+                    priceLevel: 2,
+                    editorialSummary: "A beloved neighborhood cafe known for its house-roasted coffee and seasonal brunch menu. The sun-drenched patio fills up fast on weekends, so arrive early or expect a wait."
                 ),
                 Restaurant(
                     placeID: "preview.ramen-house",
                     name: "Ramen House",
                     rating: 4.4,
                     types: ["restaurant", "ramen_restaurant"],
-                    priceLevel: nil
+                    priceLevel: nil,
+                    editorialSummary: nil
                 ),
             ]
         }
