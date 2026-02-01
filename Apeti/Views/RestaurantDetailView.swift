@@ -6,6 +6,9 @@ struct RestaurantDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
+                // MARK: - Photos
+                PhotoCarouselView(placeID: restaurant.placeID)
+
                 // MARK: - Hero Section
                 heroSection
 

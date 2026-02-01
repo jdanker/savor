@@ -7,6 +7,7 @@
 
 import Foundation
 import GooglePlacesSwift
+import UIKit
 
 @MainActor
 final class PlacesService {
@@ -84,6 +85,34 @@ final class PlacesService {
             resetSession()
             return .failure(error)
         }
+    }
+    
+    /// Fetch photos for a place by re-fetching place details and loading images
+    /// - Parameters:
+    ///   - placeID: The Google place ID
+    ///   - maxCount: Maximum number of photos to load (default 3)
+    /// - Returns: Array of loaded UIImages (may be fewer than maxCount if unavailable)
+    func fetchPhotos(placeID: String, maxCount: Int = 3) async -> [UIImage] {
+        let detailsResult = await fetchPlaceDetails(placeID: placeID)
+
+        guard case .success(let place) = detailsResult,
+              let photos = place.photos, !photos.isEmpty else { return [] }
+
+        let photosToFetch = Array(photos.prefix(maxCount))
+        var images: [UIImage] = []
+
+        for photo in photosToFetch {
+            let request = FetchPhotoRequest(
+                photo: photo,
+                maxSize: CGSize(width: 800, height: 600)
+            )
+            let result = await client.fetchPhoto(with: request)
+            if case .success(let image) = result {
+                images.append(image)
+            }
+        }
+
+        return images
     }
 
     /// High-level method: converts a suggestion into a Restaurant model
