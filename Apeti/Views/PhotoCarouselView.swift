@@ -10,12 +10,12 @@ struct PhotoCarouselView: View {
     private let placesService = PlacesService()
 
     // Skip API calls for preview/fake placeIDs
-    private var isRealPlace: Bool {
-        placeID.hasPrefix("ChIJ") || placeID.hasPrefix("Eh")
+    private var isPreviewPlace: Bool {
+        placeID.hasPrefix("preview.")
     }
 
     var body: some View {
-        Group {
+        VStack {
             if isLoading {
                 placeholder
             } else if !images.isEmpty {
@@ -23,9 +23,11 @@ struct PhotoCarouselView: View {
             }
         }
         .task {
-            guard isRealPlace else { return }
+
+            guard !isPreviewPlace else { return }
             isLoading = true
             images = await placesService.fetchPhotos(placeID: placeID)
+
             isLoading = false
         }
     }

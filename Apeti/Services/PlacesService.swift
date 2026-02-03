@@ -15,6 +15,17 @@ final class PlacesService {
     private lazy var client: PlacesClient = PlacesClient.shared
     private var sessionToken: AutocompleteSessionToken?
 
+    // L1: Memory cache — keyed by placeID, auto-evicts under memory pressure
+    private static let photoCache = NSCache<NSString, PhotoCacheEntry>()
+
+    // L2: Disk cache — persists across app launches
+    private static let photoCacheDir: URL = {
+        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        let dir = caches.appendingPathComponent("PlacePhotos", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
+    }()
+
 
     // MARK: - Public Methods
 
@@ -87,32 +98,28 @@ final class PlacesService {
         }
     }
     
-    /// Fetch photos for a place by re-fetching place details and loading images
-    /// - Parameters:
-    ///   - placeID: The Google place ID
-    ///   - maxCount: Maximum number of photos to load (default 3)
-    /// - Returns: Array of loaded UIImages (may be fewer than maxCount if unavailable)
+    /// Returns cached photos (memory → disk → API) or fetches fresh
     func fetchPhotos(placeID: String, maxCount: Int = 3) async -> [UIImage] {
-        let detailsResult = await fetchPlaceDetails(placeID: placeID)
+        let cacheKey = placeID as NSString
 
-        guard case .success(let place) = detailsResult,
-              let photos = place.photos, !photos.isEmpty else { return [] }
-
-        let photosToFetch = Array(photos.prefix(maxCount))
-        var images: [UIImage] = []
-
-        for photo in photosToFetch {
-            let request = FetchPhotoRequest(
-                photo: photo,
-                maxSize: CGSize(width: 800, height: 600)
-            )
-            let result = await client.fetchPhoto(with: request)
-            if case .success(let image) = result {
-                images.append(image)
-            }
+        // L1: Check memory cache
+        if let cached = Self.photoCache.object(forKey: cacheKey) {
+            return cached.images
         }
 
-        return images
+        // L2: Check disk cache
+        if let diskImages = Self.loadFromDisk(placeID: placeID), !diskImages.isEmpty {
+            // Promote back to memory cache for fast subsequent access
+            Self.photoCache.setObject(PhotoCacheEntry(diskImages), forKey: cacheKey)
+            return diskImages
+        }
+
+        // L3: Fetch from API
+        let detailsResult = await fetchPlaceDetails(placeID: placeID)
+        guard case .success(let place) = detailsResult,
+              let photos = place.photos else { return [] }
+
+        return await loadAndCachePhotos(photos, placeID: placeID, maxCount: maxCount)
     }
 
     /// High-level method: converts a suggestion into a Restaurant model
@@ -160,6 +167,14 @@ final class PlacesService {
                 priceLevel: priceLevel,
                 editorialSummary: editorialSummary
             )
+
+            // Pre-cache photos in background — don't block restaurant creation
+            if let photos = place.photos, !photos.isEmpty {
+                Task { [weak self] in
+                    await self?.loadAndCachePhotos(photos, placeID: suggestion.placeID)
+                }
+            }
+
             return .success(restaurant)
 
         case .failure(let error):
@@ -169,9 +184,68 @@ final class PlacesService {
 
     // MARK: - Private Helpers
 
+    /// Core photo loading logic — fetches images from Photo metadata and writes to both cache layers
+    @discardableResult
+    private func loadAndCachePhotos(_ photos: [Photo], placeID: String, maxCount: Int = 3) async -> [UIImage] {
+        let cacheKey = placeID as NSString
+        let photosToFetch = Array(photos.prefix(maxCount))
+        var images: [UIImage] = []
+
+        for photo in photosToFetch {
+            let request = FetchPhotoRequest(
+                photo: photo,
+                maxSize: CGSize(width: 800, height: 600)
+            )
+            let result = await client.fetchPhoto(with: request)
+            if case .success(let image) = result {
+                images.append(image)
+            }
+        }
+
+        if !images.isEmpty {
+            // L1: Memory cache
+            Self.photoCache.setObject(PhotoCacheEntry(images), forKey: cacheKey)
+            // L2: Disk cache
+            Self.saveToDisk(images, placeID: placeID)
+        }
+
+        return images
+    }
+
+    // MARK: - Disk Cache
+
+    /// Saves images as JPEG files: PlacePhotos/{placeID}_0.jpg, _1.jpg, etc.
+    private static func saveToDisk(_ images: [UIImage], placeID: String) {
+        for (index, image) in images.enumerated() {
+            guard let data = image.jpegData(compressionQuality: 0.8) else { continue }
+            let fileURL = photoCacheDir.appendingPathComponent("\(placeID)_\(index).jpg")
+            try? data.write(to: fileURL)
+        }
+    }
+
+    /// Loads cached images from disk for a given placeID
+    private static func loadFromDisk(placeID: String) -> [UIImage]? {
+        var images: [UIImage] = []
+        for index in 0..<10 {
+            let fileURL = photoCacheDir.appendingPathComponent("\(placeID)_\(index).jpg")
+            guard let data = try? Data(contentsOf: fileURL),
+                  let image = UIImage(data: data) else { break }
+            images.append(image)
+        }
+        return images.isEmpty ? nil : images
+    }
+
     /// Reset the session token (called after place selection)
     private func resetSession() {
         sessionToken = nil
     }
+}
+
+// MARK: - Cache Entry
+
+/// NSCache requires reference-type values, so we wrap [UIImage] in a class
+private final class PhotoCacheEntry {
+    let images: [UIImage]
+    init(_ images: [UIImage]) { self.images = images }
 }
 

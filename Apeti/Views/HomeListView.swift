@@ -14,7 +14,7 @@ struct HomeListView: View {
                     ContentUnavailableView(
                         "No restaurants yet",
                         systemImage: "fork.knife",
-                        description: Text("Tap + to add your first place")
+                        description: Text("Tap 🔍 to search for your first place")
                     )
                 } else {
                     List {
@@ -35,22 +35,11 @@ struct HomeListView: View {
                             }
                         }
                         .onDelete(perform: state.remove)
+                        .onMove(perform: state.move)
                     }
                 }
             }
             .navigationTitle("Apeti")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        state.isPresentingAdd = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
-            }
-        }
-        .sheet(isPresented: $state.isPresentingAdd) {
-            AddRestaurantView()
         }
         .sheet(item: $selectedRestaurant) { restaurant in
             RestaurantDetailView(restaurant: restaurant)

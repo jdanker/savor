@@ -7,6 +7,7 @@
 import Foundation
 import Observation
 import GooglePlacesSwift
+import SwiftUI
 
 @Observable
 @MainActor
@@ -95,6 +96,11 @@ final class AppState {
         for offset in offsets.sorted(by: >) {
             restaurants.remove(at: offset)
         }
+        store.save(restaurants)
+    }
+
+    func move(fromOffsets source: IndexSet, toOffset destination: Int) {
+        restaurants.move(fromOffsets: source, toOffset: destination)
         store.save(restaurants)
     }
     
