@@ -104,6 +104,12 @@ final class AppState {
         store.save(restaurants)
     }
     
+    func updateVisitStatus(for restaurantID: UUID, status: VisitStatus) {
+        guard let index = restaurants.firstIndex(where: { $0.id == restaurantID }) else { return }
+        restaurants[index].visitStatus = status
+        store.save(restaurants)
+    }
+    
     // helpers
     var canSave: Bool {
         let trimmedName = draftName.trimmingCharacters(in: .whitespacesAndNewlines)

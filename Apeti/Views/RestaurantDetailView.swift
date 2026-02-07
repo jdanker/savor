@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RestaurantDetailView: View {
+    @Environment(AppState.self) private var state
     let restaurant: Restaurant
 
     var body: some View {
@@ -11,6 +12,9 @@ struct RestaurantDetailView: View {
 
                 // MARK: - Hero Section
                 heroSection
+
+                // MARK: - Visit Status Tags
+                visitStatusTags
 
                 // MARK: - Editorial Summary
                 if let summary = restaurant.editorialSummary, !summary.isEmpty {
@@ -38,6 +42,50 @@ struct RestaurantDetailView: View {
 
             metadataRow
         }
+    }
+
+    // MARK: - Visit Status Tags
+    private var visitStatusTags: some View {
+        HStack(spacing: 12) {
+            tagButton(
+                title: "Want to Try",
+                icon: "bookmark",
+                isSelected: restaurant.visitStatus == .wantToTry,
+                action: {
+                    let newStatus: VisitStatus = restaurant.visitStatus == .wantToTry ? .none : .wantToTry
+                    state.updateVisitStatus(for: restaurant.id, status: newStatus)
+                }
+            )
+            
+            tagButton(
+                title: "Been",
+                icon: "checkmark.circle",
+                isSelected: restaurant.visitStatus == .been,
+                action: {
+                    let newStatus: VisitStatus = restaurant.visitStatus == .been ? .none : .been
+                    state.updateVisitStatus(for: restaurant.id, status: newStatus)
+                }
+            )
+            
+            Spacer()
+        }
+    }
+    
+    private func tagButton(title: String, icon: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: isSelected ? "\(icon).fill" : icon)
+                Text(title)
+            }
+            .font(.subheadline)
+            .fontWeight(.medium)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(isSelected ? Color.accentColor : Color.secondary.opacity(0.1))
+            .foregroundStyle(isSelected ? .white : .primary)
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Metadata Row
@@ -111,5 +159,6 @@ struct RestaurantDetailView: View {
 #Preview {
     NavigationStack {
         RestaurantDetailView(restaurant: Restaurant.previewData.first!)
+            .environment(AppState.preview)
     }
 }

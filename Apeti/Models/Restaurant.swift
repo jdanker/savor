@@ -8,6 +8,12 @@
 import Foundation
 import SwiftUI
 
+enum VisitStatus: String, Codable {
+    case none
+    case wantToTry
+    case been
+}
+
 struct Restaurant: Hashable, Codable, Identifiable {
     let id: UUID
 
@@ -21,6 +27,7 @@ struct Restaurant: Hashable, Codable, Identifiable {
 
     // Metadata
     var addedAt: Date
+    var visitStatus: VisitStatus
 
     init(
         id: UUID = UUID(),
@@ -30,7 +37,8 @@ struct Restaurant: Hashable, Codable, Identifiable {
         types: [String],
         addedAt: Date = Date(),
         priceLevel: Int?,
-        editorialSummary: String?
+        editorialSummary: String?,
+        visitStatus: VisitStatus = .none
     ) {
         self.id = id
         self.placeID = placeID
@@ -40,6 +48,7 @@ struct Restaurant: Hashable, Codable, Identifiable {
         self.addedAt = addedAt
         self.priceLevel = priceLevel
         self.editorialSummary = editorialSummary
+        self.visitStatus = visitStatus
     }
 }
 

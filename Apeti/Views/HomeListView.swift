@@ -19,14 +19,22 @@ struct HomeListView: View {
                 } else {
                     List {
                         ForEach(state.restaurants) { restaurant in
-                            VStack(alignment: .leading) {
-                                Text(restaurant.name)
-                                    .font(.headline)
-                                Text(
-                                    "\(restaurant.primaryTypeDisplay)  \(state.levelString(restaurant.priceLevel))"
-                                )
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                            HStack(spacing: 12) {
+                                VStack(alignment: .leading) {
+                                    Text(restaurant.name)
+                                        .font(.headline)
+                                    Text(
+                                        "\(restaurant.primaryTypeDisplay)  \(state.levelString(restaurant.priceLevel))"
+                                    )
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                }
+                                
+                                Spacer()
+                                
+                                if restaurant.visitStatus != .none {
+                                    statusBadge(for: restaurant.visitStatus)
+                                }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .contentShape(Rectangle())
@@ -45,6 +53,30 @@ struct HomeListView: View {
             RestaurantDetailView(restaurant: restaurant)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
+        }
+    }
+    
+    // MARK: - Helper Views
+    @ViewBuilder
+    private func statusBadge(for status: VisitStatus) -> some View {
+        let (icon, color) = statusIconAndColor(for: status)
+        
+        Image(systemName: icon)
+            .font(.caption)
+            .foregroundStyle(color)
+            .padding(6)
+            .background(color.opacity(0.15))
+            .clipShape(Circle())
+    }
+    
+    private func statusIconAndColor(for status: VisitStatus) -> (String, Color) {
+        switch status {
+        case .wantToTry:
+            return ("bookmark.fill", .blue)
+        case .been:
+            return ("checkmark.circle.fill", .green)
+        case .none:
+            return ("", .clear)
         }
     }
 }

@@ -15,32 +15,34 @@ struct RootTabView: View {
     var body: some View {
         @Bindable var state = state
 
-        TabView(selection: $selection) {
-            HomeListView()
-                .tag(Tab.home)
-                .tabItem {
-                    Label("List", systemImage: "list.bullet")
-                }
-            DiscoverView()
-                .tag(Tab.discover)
-                .tabItem {
-                    Label("Discover", systemImage: "sparkles")
-                }
-        }
-        .overlay(alignment: .bottomTrailing) {
-            Button {
-                state.isPresentingAdd = true
-            } label: {
-                Image(systemName: "magnifyingglass")
-                    .font(.title3)
-                    .fontWeight(.medium)
+        ZStack(alignment: .bottom) {
+            TabView(selection: $selection) {
+                HomeListView()
+                    .tag(Tab.home)
+                    .tabItem {
+                        Label("List", systemImage: "list.bullet")
+                    }
+                DiscoverView()
+                    .tag(Tab.discover)
+                    .tabItem {
+                        Label("Discover", systemImage: "sparkles")
+                    }
             }
-            .buttonStyle(.plain)
-            .padding(12)
-            .glassEffect(.regular.interactive())
-            .clipShape(Circle())
-            .padding(.trailing, 20)
-            .padding(.bottom, 8)
+            
+            HStack {
+                Spacer()
+                
+                Button {
+                    state.isPresentingAdd = true
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.title2)
+                        .fontWeight(.medium)
+                }
+                .buttonStyle(.glass)
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
         .sheet(isPresented: $state.isPresentingAdd) {
             AddRestaurantView()
