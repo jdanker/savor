@@ -9,40 +9,30 @@ import SwiftUI
 
 struct RootTabView: View {
     @Environment(AppState.self) private var state
-    enum Tab { case home, discover }
-    @State private var selection: Tab = .home
+    enum TabSelection { case home, discover, search }
+    @State private var selection: TabSelection = .home
 
     var body: some View {
         @Bindable var state = state
 
-        ZStack(alignment: .bottom) {
-            TabView(selection: $selection) {
+        TabView(selection: $selection) {
+            Tab("List", systemImage: "list.bullet", value: .home) {
                 HomeListView()
-                    .tag(Tab.home)
-                    .tabItem {
-                        Label("List", systemImage: "list.bullet")
-                    }
-                DiscoverView()
-                    .tag(Tab.discover)
-                    .tabItem {
-                        Label("Discover", systemImage: "sparkles")
-                    }
             }
             
-            HStack {
-                Spacer()
-                
-                Button {
-                    state.isPresentingAdd = true
-                } label: {
-                    Image(systemName: "magnifyingglass")
-                        .font(.title2)
-                        .fontWeight(.medium)
-                }
-                .buttonStyle(.glass)
+            Tab("Discover", systemImage: "sparkles", value: .discover) {
+                DiscoverView()
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+            
+            Tab("Search", systemImage: "magnifyingglass", value: .search, role: .search) {
+                Color.clear
+            }
+        }
+        .onChange(of: selection) { oldValue, newValue in
+            if newValue == .search {
+                state.isPresentingAdd = true
+                selection = oldValue
+            }
         }
         .sheet(isPresented: $state.isPresentingAdd) {
             AddRestaurantView()
