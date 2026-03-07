@@ -14,7 +14,7 @@ struct HomeListView: View {
                     ContentUnavailableView(
                         "No restaurants yet",
                         systemImage: "fork.knife",
-                        description: Text("Tap 🔍 to search for your first place")
+                        description: Text("Tap + to add your first place")
                     )
                 } else {
                     List {
@@ -48,6 +48,17 @@ struct HomeListView: View {
                 }
             }
             .navigationTitle("Apeti")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Add Restaurant", systemImage: "plus") {
+                        state.isPresentingAdd = true
+                    }
+                    .font(.title2)
+                }
+            }
+        }
+        .sheet(isPresented: $state.isPresentingAdd) {
+            AddRestaurantView()
         }
         .sheet(item: $selectedRestaurant) { restaurant in
             RestaurantDetailView(restaurant: restaurant)

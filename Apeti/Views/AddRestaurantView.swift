@@ -127,14 +127,10 @@ struct AddRestaurantView: View {
                 .font(.system(size: 40))
                 .foregroundStyle(.tertiary)
 
-            VStack(spacing: 6) {
-                Text("Search by name or cuisine")
+            VStack(spacing: 8) {
+                Text("Search for a restaurant to add")
                     .font(.headline)
                     .foregroundStyle(.secondary)
-
-                Text("\"sushi\", \"brunch\", \"Cafe Nova\"")
-                    .font(.subheadline)
-                    .foregroundStyle(.tertiary)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
