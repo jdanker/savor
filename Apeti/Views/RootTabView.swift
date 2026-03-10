@@ -14,9 +14,7 @@ struct RootTabView: View {
                 HomeListView()
             }
 
-            Tab("Discover", systemImage: "sparkles") {
-                DiscoverView()
-            }
+
         }
     }
 }

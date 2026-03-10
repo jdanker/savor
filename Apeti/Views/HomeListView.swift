@@ -23,15 +23,23 @@ struct HomeListView: View {
                                 VStack(alignment: .leading) {
                                     Text(restaurant.name)
                                         .font(.headline)
-                                    Text(
-                                        "\(restaurant.primaryTypeDisplay)  \(state.levelString(restaurant.priceLevel))"
-                                    )
+                                    HStack(spacing: 4) {
+                                        Text(restaurant.primaryTypeDisplay)
+                                        Text("·")
+                                        starRating(restaurant.rating)
+                                    }
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                 }
-                                
+
                                 Spacer()
-                                
+
+                                if !restaurant.priceLevelDisplay.isEmpty {
+                                    Text(restaurant.priceLevelDisplay)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                }
+
                                 if restaurant.visitStatus != .none {
                                     statusBadge(for: restaurant.visitStatus)
                                 }
@@ -41,14 +49,31 @@ struct HomeListView: View {
                             .onTapGesture {
                                 selectedRestaurant = restaurant
                             }
+                            .swipeActions(edge: .leading) {
+                                Button {
+                                    let newStatus: VisitStatus = restaurant.visitStatus == .been ? .none : .been
+                                    state.updateVisitStatus(for: restaurant.id, status: newStatus)
+                                } label: {
+                                    Label(
+                                        restaurant.visitStatus == .been ? "Unmark" : "Been",
+                                        systemImage: restaurant.visitStatus == .been ? "arrow.uturn.backward" : "checkmark.circle"
+                                    )
+                                }
+                                .tint(.green)
+                            }
                         }
                         .onDelete(perform: state.remove)
                         .onMove(perform: state.move)
                     }
                 }
             }
-            .navigationTitle("Apeti")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Savor")
+                        .font(.largeTitle.weight(.bold))
+                        .fontDesign(.serif)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Add Restaurant", systemImage: "plus") {
                         state.isPresentingAdd = true
@@ -61,13 +86,24 @@ struct HomeListView: View {
             AddRestaurantView()
         }
         .sheet(item: $selectedRestaurant) { restaurant in
-            RestaurantDetailView(restaurant: restaurant)
+            RestaurantDetailView(restaurantID: restaurant.id)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
     }
     
     // MARK: - Helper Views
+    private func starRating(_ rating: Double) -> some View {
+        HStack(spacing: 1) {
+            ForEach(1...5, id: \.self) { i in
+                Image(systemName: rating >= Double(i) - 0.25 ? "star.fill"
+                     : rating >= Double(i) - 0.75 ? "star.leadinghalf.filled"
+                     : "star")
+            }
+        }
+        .font(.caption2)
+    }
+
     @ViewBuilder
     private func statusBadge(for status: VisitStatus) -> some View {
         let (icon, color) = statusIconAndColor(for: status)
@@ -82,8 +118,6 @@ struct HomeListView: View {
     
     private func statusIconAndColor(for status: VisitStatus) -> (String, Color) {
         switch status {
-        case .wantToTry:
-            return ("bookmark.fill", .blue)
         case .been:
             return ("checkmark.circle.fill", .green)
         case .none:

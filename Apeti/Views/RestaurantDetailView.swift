@@ -2,7 +2,12 @@ import SwiftUI
 
 struct RestaurantDetailView: View {
     @Environment(AppState.self) private var state
-    let restaurant: Restaurant
+    let restaurantID: UUID
+
+    // Live lookup ensures SwiftUI tracks changes via @Observable AppState
+    private var restaurant: Restaurant {
+        state.restaurants.first(where: { $0.id == restaurantID })!
+    }
 
     var body: some View {
         ScrollView {
@@ -47,16 +52,6 @@ struct RestaurantDetailView: View {
     // MARK: - Visit Status Tags
     private var visitStatusTags: some View {
         HStack(spacing: 12) {
-            tagButton(
-                title: "Want to Try",
-                icon: "bookmark",
-                isSelected: restaurant.visitStatus == .wantToTry,
-                action: {
-                    let newStatus: VisitStatus = restaurant.visitStatus == .wantToTry ? .none : .wantToTry
-                    state.updateVisitStatus(for: restaurant.id, status: newStatus)
-                }
-            )
-            
             tagButton(
                 title: "Been",
                 icon: "checkmark.circle",
@@ -158,7 +153,7 @@ struct RestaurantDetailView: View {
 
 #Preview {
     NavigationStack {
-        RestaurantDetailView(restaurant: Restaurant.previewData.first!)
+        RestaurantDetailView(restaurantID: Restaurant.previewData.first!.id)
             .environment(AppState.preview)
     }
 }

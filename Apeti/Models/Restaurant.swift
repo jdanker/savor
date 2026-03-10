@@ -10,7 +10,6 @@ import SwiftUI
 
 enum VisitStatus: String, Codable {
     case none
-    case wantToTry
     case been
 }
 
@@ -116,7 +115,7 @@ extension Restaurant {
 
 #if DEBUG
     extension Restaurant {
-        static var previewData: [Restaurant] {
+        static let previewData: [Restaurant] =
             [
                 Restaurant(
                     placeID: "preview.sushi-garden",
@@ -143,6 +142,5 @@ extension Restaurant {
                     editorialSummary: nil
                 ),
             ]
-        }
     }
 #endif
