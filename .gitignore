@@ -10,7 +10,6 @@ xcuserdata/
 # Swift Package Manager
 Packages/
 Package.pins
-Package.resolved
 .swiftpm/
 
 # CocoaPods 
@@ -32,10 +31,29 @@ fastlane/test_output
 *.dSYM
 
 # macOS system files
-.DS_Store
+**/.DS_Store
+
+# Xcode workspace user data
+*.xcworkspace/xcuserdata/
+
+# Xcode misc
+*.hmap
+*.moved-aside
+*.xccheckout
+*.gcno
+*.gcda
+
+# Merge conflict originals
+**/*.orig
+
+# Playgrounds (scratch code)
+*.playground/
+
+# Swift build directory
+.build/
 
 # Secrets
 Secrets.xcconfig
 
-#Claude 
+#Claude
 .claude
