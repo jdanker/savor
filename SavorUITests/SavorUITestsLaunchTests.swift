@@ -1,13 +1,13 @@
 //
-//  ApetiUITestsLaunchTests.swift
-//  ApetiUITests
+//  SavorUITestsLaunchTests.swift
+//  SavorUITests
 //
 //  Created by Jahred Danker on 9/17/25.
 //
 
 import XCTest
 
-final class ApetiUITestsLaunchTests: XCTestCase {
+final class SavorUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

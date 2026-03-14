@@ -29,39 +29,38 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		03DDDFF92E7B82C200FDD22C /* Apeti.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Apeti.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		03DDE0062E7B82C300FDD22C /* ApetiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApetiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		03DDE0102E7B82C300FDD22C /* ApetiUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApetiUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		03DDDFF92E7B82C200FDD22C /* Savor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Savor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		03DDE0062E7B82C300FDD22C /* SavorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SavorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		03DDE0102E7B82C300FDD22C /* SavorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SavorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		032E71A52EFA22B4002F6B5C /* Exceptions for "Apeti" folder in "Apeti" target */ = {
+		03323C672F64EF7300863C41 /* Exceptions for "Savor" folder in "Savor" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Secrets.xcconfig,
 			);
-			target = 03DDDFF82E7B82C200FDD22C /* Apeti */;
+			target = 03DDDFF82E7B82C200FDD22C /* Savor */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		03DDDFFB2E7B82C200FDD22C /* Apeti */ = {
+		03DDDFFB2E7B82C200FDD22C /* Savor */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				032E71A52EFA22B4002F6B5C /* Exceptions for "Apeti" folder in "Apeti" target */,
+				03323C672F64EF7300863C41 /* Exceptions for "Savor" folder in "Savor" target */,
 			);
-			path = Apeti;
+			path = Savor;
 			sourceTree = "<group>";
 		};
-		03DDE0092E7B82C300FDD22C /* ApetiTests */ = {
+		03DDE0092E7B82C300FDD22C /* SavorTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ApetiTests;
+			path = SavorTests;
 			sourceTree = "<group>";
 		};
-		03DDE0132E7B82C300FDD22C /* ApetiUITests */ = {
+		03DDE0132E7B82C300FDD22C /* SavorUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ApetiUITests;
+			path = SavorUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -96,9 +95,9 @@
 		03DDDFF02E7B82C200FDD22C = {
 			isa = PBXGroup;
 			children = (
-				03DDDFFB2E7B82C200FDD22C /* Apeti */,
-				03DDE0092E7B82C300FDD22C /* ApetiTests */,
-				03DDE0132E7B82C300FDD22C /* ApetiUITests */,
+				03DDDFFB2E7B82C200FDD22C /* Savor */,
+				03DDE0092E7B82C300FDD22C /* SavorTests */,
+				03DDE0132E7B82C300FDD22C /* SavorUITests */,
 				03DDDFFA2E7B82C200FDD22C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -106,9 +105,9 @@
 		03DDDFFA2E7B82C200FDD22C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				03DDDFF92E7B82C200FDD22C /* Apeti.app */,
-				03DDE0062E7B82C300FDD22C /* ApetiTests.xctest */,
-				03DDE0102E7B82C300FDD22C /* ApetiUITests.xctest */,
+				03DDDFF92E7B82C200FDD22C /* Savor.app */,
+				03DDE0062E7B82C300FDD22C /* SavorTests.xctest */,
+				03DDE0102E7B82C300FDD22C /* SavorUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -116,9 +115,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		03DDDFF82E7B82C200FDD22C /* Apeti */ = {
+		03DDDFF82E7B82C200FDD22C /* Savor */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 03DDE01A2E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "Apeti" */;
+			buildConfigurationList = 03DDE01A2E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "Savor" */;
 			buildPhases = (
 				03DDDFF52E7B82C200FDD22C /* Sources */,
 				03DDDFF62E7B82C200FDD22C /* Frameworks */,
@@ -129,20 +128,20 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				03DDDFFB2E7B82C200FDD22C /* Apeti */,
+				03DDDFFB2E7B82C200FDD22C /* Savor */,
 			);
-			name = Apeti;
+			name = Savor;
 			packageProductDependencies = (
 				032A8D5B2EF0EBBE00CADC3A /* GooglePlaces */,
 				032A8D5D2EF0EBBE00CADC3A /* GooglePlacesSwift */,
 			);
 			productName = Apeti;
-			productReference = 03DDDFF92E7B82C200FDD22C /* Apeti.app */;
+			productReference = 03DDDFF92E7B82C200FDD22C /* Savor.app */;
 			productType = "com.apple.product-type.application";
 		};
-		03DDE0052E7B82C300FDD22C /* ApetiTests */ = {
+		03DDE0052E7B82C300FDD22C /* SavorTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 03DDE01D2E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "ApetiTests" */;
+			buildConfigurationList = 03DDE01D2E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "SavorTests" */;
 			buildPhases = (
 				03DDE0022E7B82C300FDD22C /* Sources */,
 				03DDE0032E7B82C300FDD22C /* Frameworks */,
@@ -154,18 +153,18 @@
 				03DDE0082E7B82C300FDD22C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				03DDE0092E7B82C300FDD22C /* ApetiTests */,
+				03DDE0092E7B82C300FDD22C /* SavorTests */,
 			);
-			name = ApetiTests;
+			name = SavorTests;
 			packageProductDependencies = (
 			);
 			productName = ApetiTests;
-			productReference = 03DDE0062E7B82C300FDD22C /* ApetiTests.xctest */;
+			productReference = 03DDE0062E7B82C300FDD22C /* SavorTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		03DDE00F2E7B82C300FDD22C /* ApetiUITests */ = {
+		03DDE00F2E7B82C300FDD22C /* SavorUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 03DDE0202E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "ApetiUITests" */;
+			buildConfigurationList = 03DDE0202E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "SavorUITests" */;
 			buildPhases = (
 				03DDE00C2E7B82C300FDD22C /* Sources */,
 				03DDE00D2E7B82C300FDD22C /* Frameworks */,
@@ -177,13 +176,13 @@
 				03DDE0122E7B82C300FDD22C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				03DDE0132E7B82C300FDD22C /* ApetiUITests */,
+				03DDE0132E7B82C300FDD22C /* SavorUITests */,
 			);
-			name = ApetiUITests;
+			name = SavorUITests;
 			packageProductDependencies = (
 			);
 			productName = ApetiUITests;
-			productReference = 03DDE0102E7B82C300FDD22C /* ApetiUITests.xctest */;
+			productReference = 03DDE0102E7B82C300FDD22C /* SavorUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -209,7 +208,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 03DDDFF42E7B82C200FDD22C /* Build configuration list for PBXProject "Apeti" */;
+			buildConfigurationList = 03DDDFF42E7B82C200FDD22C /* Build configuration list for PBXProject "Savor" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -226,9 +225,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				03DDDFF82E7B82C200FDD22C /* Apeti */,
-				03DDE0052E7B82C300FDD22C /* ApetiTests */,
-				03DDE00F2E7B82C300FDD22C /* ApetiUITests */,
+				03DDDFF82E7B82C200FDD22C /* Savor */,
+				03DDE0052E7B82C300FDD22C /* SavorTests */,
+				03DDE00F2E7B82C300FDD22C /* SavorUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -284,12 +283,12 @@
 /* Begin PBXTargetDependency section */
 		03DDE0082E7B82C300FDD22C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 03DDDFF82E7B82C200FDD22C /* Apeti */;
+			target = 03DDDFF82E7B82C200FDD22C /* Savor */;
 			targetProxy = 03DDE0072E7B82C300FDD22C /* PBXContainerItemProxy */;
 		};
 		03DDE0122E7B82C300FDD22C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 03DDDFF82E7B82C200FDD22C /* Apeti */;
+			target = 03DDDFF82E7B82C200FDD22C /* Savor */;
 			targetProxy = 03DDE0112E7B82C300FDD22C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -297,7 +296,7 @@
 /* Begin XCBuildConfiguration section */
 		03DDE0182E7B82C300FDD22C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 03DDDFFB2E7B82C200FDD22C /* Apeti */;
+			baseConfigurationReferenceAnchor = 03DDDFFB2E7B82C200FDD22C /* Savor */;
 			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -363,7 +362,7 @@
 		};
 		03DDE0192E7B82C300FDD22C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 03DDDFFB2E7B82C200FDD22C /* Apeti */;
+			baseConfigurationReferenceAnchor = 03DDDFFB2E7B82C200FDD22C /* Savor */;
 			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -422,7 +421,7 @@
 		};
 		03DDE01B2E7B82C300FDD22C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 03DDDFFB2E7B82C200FDD22C /* Apeti */;
+			baseConfigurationReferenceAnchor = 03DDDFFB2E7B82C200FDD22C /* Savor */;
 			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -432,7 +431,7 @@
 				DEVELOPMENT_TEAM = 7QNU64N8ZM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Apeti/Info.plist;
+				INFOPLIST_FILE = Savor/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Savor;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -459,7 +458,7 @@
 		};
 		03DDE01C2E7B82C300FDD22C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 03DDDFFB2E7B82C200FDD22C /* Apeti */;
+			baseConfigurationReferenceAnchor = 03DDDFFB2E7B82C200FDD22C /* Savor */;
 			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -469,7 +468,7 @@
 				DEVELOPMENT_TEAM = 7QNU64N8ZM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Apeti/Info.plist;
+				INFOPLIST_FILE = Savor/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Savor;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -511,7 +510,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Apeti.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Apeti";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Savor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Savor";
 			};
 			name = Debug;
 		};
@@ -532,7 +531,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Apeti.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Apeti";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Savor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Savor";
 			};
 			name = Release;
 		};
@@ -577,7 +576,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		03DDDFF42E7B82C200FDD22C /* Build configuration list for PBXProject "Apeti" */ = {
+		03DDDFF42E7B82C200FDD22C /* Build configuration list for PBXProject "Savor" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				03DDE0182E7B82C300FDD22C /* Debug */,
@@ -586,7 +585,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		03DDE01A2E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "Apeti" */ = {
+		03DDE01A2E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "Savor" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				03DDE01B2E7B82C300FDD22C /* Debug */,
@@ -595,7 +594,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		03DDE01D2E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "ApetiTests" */ = {
+		03DDE01D2E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "SavorTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				03DDE01E2E7B82C300FDD22C /* Debug */,
@@ -604,7 +603,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		03DDE0202E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "ApetiUITests" */ = {
+		03DDE0202E7B82C300FDD22C /* Build configuration list for PBXNativeTarget "SavorUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				03DDE0212E7B82C300FDD22C /* Debug */,

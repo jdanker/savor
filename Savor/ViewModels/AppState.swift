@@ -1,6 +1,6 @@
 //
 //  AppState.swift
-//  Apeti
+//  Savor
 //
 //  Created by Jahred Danker on 9/20/25.
 //

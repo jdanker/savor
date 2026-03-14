@@ -1,13 +1,13 @@
 //
-//  ApetiUITests.swift
-//  ApetiUITests
+//  SavorUITests.swift
+//  SavorUITests
 //
 //  Created by Jahred Danker on 9/17/25.
 //
 
 import XCTest
 
-final class ApetiUITests: XCTestCase {
+final class SavorUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

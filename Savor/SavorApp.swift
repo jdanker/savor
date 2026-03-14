@@ -1,6 +1,6 @@
 //
-//  ApetiApp.swift
-//  Apeti
+//  SavorApp.swift
+//  Savor
 //
 //  Created by Jahred Danker on 9/17/25.
 //
@@ -10,7 +10,7 @@ import GooglePlaces  // Legacy SDK (required dependency)
 import GooglePlacesSwift
 
 @main
-struct ApetiApp: App {
+struct SavorApp: App {
     @State private var state = AppState(store: RestaurantStore())
 
     init() {
