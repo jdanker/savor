@@ -204,8 +204,9 @@ struct AddRestaurantView: View {
         .listStyle(.plain)
     }
 }
-
+#if DEBUG
 #Preview {
     AddRestaurantView()
         .environment(AppState.preview)
 }
+#endif 

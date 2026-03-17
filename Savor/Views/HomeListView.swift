@@ -126,7 +126,10 @@ struct HomeListView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     HomeListView()
         .environment(AppState.preview)
 }
+#endif
+

@@ -18,8 +18,9 @@ struct RootTabView: View {
         }
     }
 }
-
+#if DEBUG
 #Preview {
     RootTabView()
         .environment(AppState.preview)
 }
+#endif

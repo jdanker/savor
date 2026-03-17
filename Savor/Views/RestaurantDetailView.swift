@@ -151,9 +151,12 @@ struct RestaurantDetailView: View {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview {
     NavigationStack {
         RestaurantDetailView(restaurantID: Restaurant.previewData.first!.id)
             .environment(AppState.preview)
     }
 }
+#endif
+
