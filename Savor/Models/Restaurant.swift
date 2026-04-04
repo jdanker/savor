@@ -24,6 +24,11 @@ struct Restaurant: Hashable, Codable, Identifiable {
     var priceLevel: Int?
     var editorialSummary: String?
 
+    // Enriched data — populated lazily via refreshPlaceData, not on initial add
+    var websiteURL: URL?
+    var reviewSummary: String?
+    var lastRefreshedAt: Date?
+
     // Metadata
     var addedAt: Date
     var visitStatus: VisitStatus
@@ -37,6 +42,9 @@ struct Restaurant: Hashable, Codable, Identifiable {
         addedAt: Date = Date(),
         priceLevel: Int?,
         editorialSummary: String?,
+        websiteURL: URL? = nil,
+        reviewSummary: String? = nil,
+        lastRefreshedAt: Date? = nil,
         visitStatus: VisitStatus = .none
     ) {
         self.id = id
@@ -47,7 +55,18 @@ struct Restaurant: Hashable, Codable, Identifiable {
         self.addedAt = addedAt
         self.priceLevel = priceLevel
         self.editorialSummary = editorialSummary
+        self.websiteURL = websiteURL
+        self.reviewSummary = reviewSummary
+        self.lastRefreshedAt = lastRefreshedAt
         self.visitStatus = visitStatus
+    }
+}
+
+extension Restaurant {
+    /// True if enriched data (website, review summary) has never been fetched or is older than 30 days
+    var needsRefresh: Bool {
+        guard let refreshed = lastRefreshedAt else { return true }
+        return refreshed < Date.now.addingTimeInterval(-30 * 24 * 3600)
     }
 }
 
@@ -123,7 +142,10 @@ extension Restaurant {
                     rating: 4.2,
                     types: ["restaurant", "japanese_restaurant"],
                     priceLevel: 3,
-                    editorialSummary: "Fresh omakase and creative rolls in a minimalist setting."
+                    editorialSummary: "Fresh omakase and creative rolls in a minimalist setting.",
+                    websiteURL: URL(string: "https://jdanker.com"),
+                    reviewSummary: "Guests rave about the melt-in-your-mouth tuna and the chef's creative seasonal rolls. The minimalist space keeps the focus on the fish.",
+                    lastRefreshedAt: Date()
                 ),
                 Restaurant(
                     placeID: "preview.cafe-flora",
@@ -131,7 +153,10 @@ extension Restaurant {
                     rating: 4.6,
                     types: ["cafe", "restaurant"],
                     priceLevel: 2,
-                    editorialSummary: "A beloved neighborhood cafe known for its house-roasted coffee and seasonal brunch menu. The sun-drenched patio fills up fast on weekends, so arrive early or expect a wait."
+                    editorialSummary: "A beloved neighborhood cafe known for its house-roasted coffee and seasonal brunch menu. The sun-drenched patio fills up fast on weekends, so arrive early or expect a wait.",
+                    websiteURL: URL(string: "https://jdanker.com"),
+                    reviewSummary: "Locals love the single-origin pour-overs and the rotating brunch specials. Expect a wait on weekends — most agree it's worth it.",
+                    lastRefreshedAt: Date()
                 ),
                 Restaurant(
                     placeID: "preview.ramen-house",
@@ -139,7 +164,8 @@ extension Restaurant {
                     rating: 4.4,
                     types: ["restaurant", "ramen_restaurant"],
                     priceLevel: nil,
-                    editorialSummary: nil
+                    editorialSummary: nil,
+                    lastRefreshedAt: Date()
                 ),
             ]
     }

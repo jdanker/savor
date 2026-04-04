@@ -87,6 +87,16 @@ final class AppState {
         
     }
     
+    /// Lazily fetches enrichable fields (website, review summary) for a restaurant and persists them.
+    /// No-op if the restaurant is not found; silently ignores API errors (stale data stays).
+    func refreshPlaceData(for restaurantID: UUID) async {
+        guard let restaurant = restaurants.first(where: { $0.id == restaurantID }) else { return }
+        guard case .success(let updated) = await placesService.refreshRestaurant(restaurant),
+              let index = restaurants.firstIndex(where: { $0.id == restaurantID }) else { return }
+        restaurants[index] = updated
+        store.save(restaurants)
+    }
+
     func remove(id: UUID) {
         restaurants.removeAll { $0.id == id }
         store.save(restaurants)
