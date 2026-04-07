@@ -81,7 +81,8 @@ final class PlacesService {
                 .priceLevel,
                 .types,
                 .editorialSummary,
-                .photos
+                .photos,
+                .websiteURL
             ]
 
             let request = FetchPlaceRequest(placeID: placeID, placeProperties: fields)
@@ -156,8 +157,9 @@ final class PlacesService {
             // Convert Set<PlaceType> to [String]
             let types = place.types.map { $0.rawValue }
 
-            // Extract editorial summary (may be nil)
+            // Extract editorial summary and website (may be nil)
             let editorialSummary = place.editorialSummary
+            let websiteURL = place.websiteURL
 
             let restaurant = Restaurant(
                 placeID: suggestion.placeID,
@@ -165,7 +167,8 @@ final class PlacesService {
                 rating: rating,
                 types: types,
                 priceLevel: priceLevel,
-                editorialSummary: editorialSummary
+                editorialSummary: editorialSummary,
+                websiteURL: websiteURL
             )
 
             // Pre-cache photos in background — don't block restaurant creation
@@ -178,6 +181,26 @@ final class PlacesService {
             return .success(restaurant)
 
         case .failure(let error):
+            return .failure(error)
+        }
+    }
+
+    /// Re-fetches only enrichable fields (website, review summary) and returns an updated copy.
+    /// Called lazily from the detail view — does not touch the autocomplete session token.
+    func refreshRestaurant(_ restaurant: Restaurant) async -> Result<Restaurant, Error> {
+        let fields: [PlaceProperty] = [.websiteURL, .reviewSummary]
+        let request = FetchPlaceRequest(placeID: restaurant.placeID, placeProperties: fields)
+
+        do {
+            let result: Result<Place, PlacesError> = try await client.fetchPlace(with: request)
+            let place = try result.get()
+
+            var updated = restaurant
+            updated.websiteURL = place.websiteURL
+            updated.reviewSummary = place.reviewSummary?.text
+            updated.lastRefreshedAt = Date()
+            return .success(updated)
+        } catch {
             return .failure(error)
         }
     }

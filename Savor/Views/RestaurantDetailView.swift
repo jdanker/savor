@@ -28,6 +28,19 @@ struct RestaurantDetailView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                // MARK: - Review Summary (Gemini AI)
+                if let summary = restaurant.reviewSummary, !summary.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        // TODO(human): replace this placeholder header + text layout
+                        Label("Summarized with Gemini", systemImage: "sparkles")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                        Text(summary)
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
                 Divider()
 
                 // MARK: - Info Section
@@ -36,6 +49,11 @@ struct RestaurantDetailView: View {
             .padding()
         }
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            if restaurant.needsRefresh {
+                await state.refreshPlaceData(for: restaurantID)
+            }
+        }
     }
 
     // MARK: - Hero Section
@@ -61,7 +79,23 @@ struct RestaurantDetailView: View {
                     state.updateVisitStatus(for: restaurant.id, status: newStatus)
                 }
             )
-            
+
+            if let url = restaurant.websiteURL {
+                Link(destination: url) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "globe")
+                        Text("Website")
+                    }
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.secondary.opacity(0.1))
+                    .foregroundStyle(.primary)
+                    .clipShape(Capsule())
+                }
+            }
+
             Spacer()
         }
     }
