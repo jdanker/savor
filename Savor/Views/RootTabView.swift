@@ -13,9 +13,8 @@ struct RootTabView: View {
             Tab("List", systemImage: "list.bullet") {
                 HomeListView()
             }
-
-
         }
+        .tint(SavorTheme.accent)
     }
 }
 #if DEBUG

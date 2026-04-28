@@ -1,22 +1,13 @@
-//
-//  AddRestaurantView.swift
-//  Savor
-//
-//  Created by Jahred Danker on 9/20/25.
-//
-
 import SwiftUI
 import GooglePlacesSwift
 
 struct AddRestaurantView: View {
     @Environment(AppState.self) private var state
 
-    // MARK: - Local State
     @State private var suggestions: [AutocompletePlaceSuggestion] = []
     @State private var searchTask: Task<Void, Never>?
     @FocusState private var isSearchFieldFocused: Bool
 
-    /// Tracks which content state we're in for animations
     private enum ViewState: Equatable {
         case idle, loading, error, noResults, results
     }
@@ -33,38 +24,43 @@ struct AddRestaurantView: View {
         @Bindable var state = state
 
         NavigationStack {
-            VStack(spacing: 0) {
-                searchBar
+            ZStack {
+                SavorBackground()
 
-                // Animated content transitions between states
-                Group {
-                    switch viewState {
-                    case .idle:
-                        idlePrompt
-                    case .loading:
-                        loadingState
-                    case .error:
-                        errorState
-                    case .noResults:
-                        noResultsState
-                    case .results:
-                        suggestionsList
+                VStack(spacing: 0) {
+                    searchBar
+
+                    Group {
+                        switch viewState {
+                        case .idle:
+                            idlePrompt
+                        case .loading:
+                            loadingState
+                        case .error:
+                            errorState
+                        case .noResults:
+                            noResultsState
+                        case .results:
+                            suggestionsList
+                        }
                     }
+                    .animation(.easeInOut(duration: 0.2), value: viewState)
                 }
-                .animation(.easeInOut(duration: 0.2), value: viewState)
             }
             .navigationTitle("Add Restaurant")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.light, for: .navigationBar)
             .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { state.cancelAdd() }
+                        .foregroundStyle(SavorTheme.accent)
                 }
             }
             .onAppear {
                 isSearchFieldFocused = true
             }
-            .onChange(of: state.searchQuery) { oldValue, newValue in
+            .onChange(of: state.searchQuery) { _, newValue in
                 searchTask?.cancel()
 
                 guard !newValue.isEmpty else {
@@ -88,20 +84,20 @@ struct AddRestaurantView: View {
                 }
             }
         }
+        .environment(\.colorScheme, .light)
     }
-
-    // MARK: - Search Bar
 
     private var searchBar: some View {
         @Bindable var state = state
 
         return HStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(SavorTheme.accent)
 
             TextField("Search for a restaurant...", text: $state.searchQuery)
                 .autocorrectionDisabled()
                 .focused($isSearchFieldFocused)
+                .foregroundStyle(SavorTheme.ink)
 
             if !state.searchQuery.isEmpty {
                 Button {
@@ -109,104 +105,146 @@ struct AddRestaurantView: View {
                     suggestions = []
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(SavorTheme.mutedInk)
                 }
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-        .padding()
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(Color.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(Color.white.opacity(0.55), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.08), radius: 18, x: 0, y: 10)
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
     }
 
-    // MARK: - Idle Prompt
-
     private var idlePrompt: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 40))
-                .foregroundStyle(.tertiary)
+        VStack(spacing: 18) {
+            ZStack {
+                Circle()
+                    .fill(SavorTheme.accent)
+                    .frame(width: 86, height: 86)
 
-            VStack(spacing: 8) {
-                Text("Search for a restaurant to add")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 30, weight: .semibold))
+                    .foregroundStyle(.white)
             }
+
+            Text("Search for a restaurant to add")
+                .font(.system(.title3, design: .serif, weight: .bold))
+                .foregroundStyle(SavorTheme.ink)
+
+            Text("Pull in a real place, then keep it on your shortlist for the next dinner plan.")
+                .font(.subheadline)
+                .foregroundStyle(SavorTheme.mutedInk)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 30)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
-    // MARK: - Loading State
 
     private var loadingState: some View {
         VStack(spacing: 12) {
             ProgressView()
+                .tint(SavorTheme.accent)
             Text("Loading restaurant details...")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(SavorTheme.mutedInk)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
-    // MARK: - Error State
 
     private var errorState: some View {
         VStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.largeTitle)
-                .foregroundStyle(.orange)
+                .foregroundStyle(SavorTheme.rose)
             Text(state.placesError ?? "Something went wrong")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(SavorTheme.mutedInk)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // MARK: - No Results
-
     private var noResultsState: some View {
-        ContentUnavailableView(
-            "No restaurants found",
-            systemImage: "magnifyingglass",
-            description: Text("Try a different search term")
-        )
-    }
+        VStack(spacing: 12) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 34, weight: .semibold))
+                .foregroundStyle(SavorTheme.accent)
 
-    // MARK: - Suggestions List
+            Text("No restaurants found")
+                .font(.headline)
+                .foregroundStyle(SavorTheme.ink)
+
+            Text("Try a different search term")
+                .font(.subheadline)
+                .foregroundStyle(SavorTheme.mutedInk)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
 
     private var suggestionsList: some View {
-        List(suggestions, id: \.placeID) { suggestion in
-            Button {
-                Task { @MainActor in
-                    await state.selectPlace(suggestion: suggestion)
-                    suggestions.removeAll()
-                }
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "fork.knife")
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
-                        .frame(width: 32)
+        List {
+            Section("Matches") {
+                ForEach(suggestions, id: \.placeID) { suggestion in
+                    Button {
+                        Task { @MainActor in
+                            await state.selectPlace(suggestion: suggestion)
+                            suggestions.removeAll()
+                        }
+                    } label: {
+                        HStack(spacing: 14) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .fill(SavorTheme.accentSoft)
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(suggestion.attributedPrimaryText)
-                            .font(.headline)
-                        Text(suggestion.attributedFullText)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
+                                Image(systemName: "fork.knife")
+                                    .font(.headline.weight(.semibold))
+                                    .foregroundStyle(.white)
+                            }
+                            .frame(width: 46, height: 46)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(suggestion.attributedPrimaryText)
+                                    .font(.headline)
+                                    .foregroundStyle(SavorTheme.ink)
+                                Text(suggestion.attributedFullText)
+                                    .font(.caption)
+                                    .foregroundStyle(SavorTheme.mutedInk)
+                                    .lineLimit(1)
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "arrow.up.right")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(SavorTheme.accent)
+                        }
+                        .padding(14)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .savorCardStyle()
                     }
+                    .buttonStyle(.plain)
+                    .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
                 }
             }
+            .textCase(nil)
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     }
 }
+
 #if DEBUG
 #Preview {
     AddRestaurantView()
         .environment(AppState.preview)
 }
-#endif 
+#endif

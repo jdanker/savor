@@ -4,49 +4,41 @@ struct RestaurantDetailView: View {
     @Environment(AppState.self) private var state
     let restaurantID: UUID
 
-    // Live lookup ensures SwiftUI tracks changes via @Observable AppState
     private var restaurant: Restaurant {
         state.restaurants.first(where: { $0.id == restaurantID })!
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // MARK: - Photos
-                PhotoCarouselView(placeID: restaurant.placeID)
+        ZStack {
+            SavorBackground()
 
-                // MARK: - Hero Section
-                heroSection
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    PhotoCarouselView(placeID: restaurant.placeID)
+                    heroSection
+                    visitStatusTags
 
-                // MARK: - Visit Status Tags
-                visitStatusTags
-
-                // MARK: - Editorial Summary
-                if let summary = restaurant.editorialSummary, !summary.isEmpty {
-                    Text(summary)
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                }
-
-                // MARK: - Review Summary (Gemini AI)
-                if let summary = restaurant.reviewSummary, !summary.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        // TODO(human): replace this placeholder header + text layout
-                        Label("Summarized with Gemini", systemImage: "sparkles")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                        Text(summary)
-                            .font(.body)
-                            .foregroundStyle(.secondary)
+                    if let summary = restaurant.editorialSummary, !summary.isEmpty {
+                        detailCard(
+                            title: "Why it stands out",
+                            icon: "fork.knife.circle.fill",
+                            body: summary
+                        )
                     }
+
+                    if let summary = restaurant.reviewSummary, !summary.isEmpty {
+                        detailCard(
+                            title: "What people are saying",
+                            icon: "sparkles",
+                            body: summary
+                        )
+                    }
+
+                    infoSection
                 }
-
-                Divider()
-
-                // MARK: - Info Section
-                infoSection
+                .padding(.horizontal, 20)
+                .padding(.vertical, 24)
             }
-            .padding()
         }
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -56,18 +48,16 @@ struct RestaurantDetailView: View {
         }
     }
 
-    // MARK: - Hero Section
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(restaurant.name)
-                .font(.largeTitle)
-                .fontWeight(.bold)
+                .font(.system(.largeTitle, design: .serif, weight: .bold))
+                .foregroundStyle(SavorTheme.ink)
 
             metadataRow
         }
     }
 
-    // MARK: - Visit Status Tags
     private var visitStatusTags: some View {
         HStack(spacing: 12) {
             tagButton(
@@ -90,8 +80,8 @@ struct RestaurantDetailView: View {
                     .fontWeight(.medium)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
-                    .background(Color.secondary.opacity(0.1))
-                    .foregroundStyle(.primary)
+                    .background(Color.white.opacity(0.5))
+                    .foregroundStyle(SavorTheme.ink)
                     .clipShape(Capsule())
                 }
             }
@@ -99,7 +89,7 @@ struct RestaurantDetailView: View {
             Spacer()
         }
     }
-    
+
     private func tagButton(title: String, icon: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 6) {
@@ -110,51 +100,76 @@ struct RestaurantDetailView: View {
             .fontWeight(.medium)
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
-            .background(isSelected ? Color.accentColor : Color.secondary.opacity(0.1))
-            .foregroundStyle(isSelected ? .white : .primary)
+            .background(
+                isSelected ? SavorTheme.accent : Color.white.opacity(0.55)
+            )
+            .foregroundStyle(isSelected ? .white : SavorTheme.ink)
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
     }
 
-    // MARK: - Metadata Row
     private var metadataRow: some View {
         HStack(spacing: 8) {
             Text(restaurant.primaryTypeDisplay)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(SavorTheme.mutedInk)
                 .lineLimit(1)
-                .layoutPriority(-1)  // yields space to other elements first
+                .layoutPriority(-1)
 
             if !restaurant.priceLevelDisplay.isEmpty {
                 Text("•")
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(SavorTheme.mutedInk.opacity(0.5))
                 Text(restaurant.priceLevelDisplay)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(SavorTheme.olive)
             }
 
             Text("•")
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(SavorTheme.mutedInk.opacity(0.5))
 
             starRatingView(rating: restaurant.rating)
-                .fixedSize()  // prevents compression of stars + rating
+                .fixedSize()
         }
         .font(.subheadline)
     }
 
-    // MARK: - Info Section
     private var infoSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 12) {
             Label {
                 Text("Added \(restaurant.addedAt.formatted(date: .abbreviated, time: .omitted))")
             } icon: {
                 Image(systemName: "calendar")
             }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
+
+            if let refreshed = restaurant.lastRefreshedAt {
+                Label {
+                    Text("Last refreshed \(refreshed.formatted(date: .abbreviated, time: .omitted))")
+                } icon: {
+                    Image(systemName: "arrow.clockwise")
+                }
+            }
         }
+        .font(.subheadline)
+        .foregroundStyle(SavorTheme.mutedInk)
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .savorCardStyle()
     }
 
-    // MARK: - Helper Views
+    private func detailCard(title: String, icon: String, body: String) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(title, systemImage: icon)
+                .font(.headline)
+                .foregroundStyle(SavorTheme.accent)
+
+            Text(body)
+                .font(.body)
+                .foregroundStyle(SavorTheme.mutedInk)
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .savorCardStyle()
+    }
+
     private func starRatingView(rating: Double) -> some View {
         HStack(spacing: 4) {
             ForEach(1...5, id: \.self) { index in
@@ -162,11 +177,11 @@ struct RestaurantDetailView: View {
 
                 ZStack(alignment: .leading) {
                     Image(systemName: "star")
-                        .foregroundStyle(.gray.opacity(0.3))
+                        .foregroundStyle(SavorTheme.gold.opacity(0.28))
 
                     GeometryReader { geo in
                         Image(systemName: "star.fill")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(SavorTheme.gold)
                             .frame(width: geo.size.width * filled, alignment: .leading)
                             .clipped()
                     }
@@ -177,13 +192,10 @@ struct RestaurantDetailView: View {
 
             Text("\(rating, specifier: "%.1f")")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
-
+                .foregroundStyle(SavorTheme.mutedInk)
         }
     }
 }
-
-// MARK: - Preview
 
 #if DEBUG
 #Preview {
@@ -193,4 +205,3 @@ struct RestaurantDetailView: View {
     }
 }
 #endif
-

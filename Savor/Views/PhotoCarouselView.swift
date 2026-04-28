@@ -6,10 +6,8 @@ struct PhotoCarouselView: View {
     @State private var images: [UIImage] = []
     @State private var isLoading = false
 
-    // PlacesService is @MainActor so we access it here directly
     private let placesService = PlacesService()
 
-    // Skip API calls for preview/fake placeIDs
     private var isPreviewPlace: Bool {
         placeID.hasPrefix("preview.")
     }
@@ -23,16 +21,12 @@ struct PhotoCarouselView: View {
             }
         }
         .task {
-
             guard !isPreviewPlace else { return }
             isLoading = true
             images = await placesService.fetchPhotos(placeID: placeID)
-
             isLoading = false
         }
     }
-
-    // MARK: - Carousel
 
     private var carousel: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -42,21 +36,24 @@ struct PhotoCarouselView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 280, height: 200)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                .stroke(Color.white.opacity(0.4), lineWidth: 1)
+                        )
                 }
             }
         }
         .scrollTargetBehavior(.viewAligned)
     }
 
-    // MARK: - Placeholder
-
     private var placeholder: some View {
-        RoundedRectangle(cornerRadius: 12)
-            .fill(.quaternary)
+        RoundedRectangle(cornerRadius: 22, style: .continuous)
+            .fill(Color.white.opacity(0.5))
             .frame(height: 200)
             .overlay {
                 ProgressView()
+                    .tint(SavorTheme.accent)
             }
     }
 }

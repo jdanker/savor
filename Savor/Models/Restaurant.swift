@@ -11,6 +11,15 @@ import SwiftUI
 enum VisitStatus: String, Codable {
     case none
     case been
+
+    var label: String {
+        switch self {
+        case .none:
+            return "None"
+        case .been:
+            return "Been"
+        }
+    }
 }
 
 struct Restaurant: Hashable, Codable, Identifiable {
@@ -129,6 +138,24 @@ extension Restaurant {
     var priceLevelDisplay: String {
         guard let level = priceLevel, (1...4).contains(level) else { return "" }
         return String(repeating: "$", count: level)
+    }
+
+    var iconName: String {
+        let type = primaryTypeDisplay.lowercased()
+
+        if type.contains("sushi") || type.contains("japanese") {
+            return "fish.fill"
+        }
+        if type.contains("cafe") || type.contains("coffee") || type.contains("bakery") {
+            return "cup.and.saucer.fill"
+        }
+        if type.contains("bar") || type.contains("pub") || type.contains("wine") {
+            return "wineglass.fill"
+        }
+        if type.contains("ice cream") || type.contains("dessert") {
+            return "birthday.cake.fill"
+        }
+        return "fork.knife"
     }
 }
 
