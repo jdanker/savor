@@ -60,3 +60,4 @@ Secrets.xcconfig
 screenshots/
 .agents/
 skills-lock.json
+agents.md

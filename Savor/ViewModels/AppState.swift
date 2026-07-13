@@ -4,6 +4,7 @@
 //
 //  Created by Jahred Danker on 9/20/25.
 //
+import CoreLocation
 import Foundation
 import Observation
 import GooglePlacesSwift
@@ -28,8 +29,13 @@ final class AppState {
 
     var isPresentingAdd = false
 
+    // MARK: - Distance Sort Properties
+    var userLocation: CLLocation?
+    var locationDenied = false
+
     private let store: RestaurantStore
     private let placesService = PlacesService()
+    private let locationService = LocationService()
 
     init(store: RestaurantStore) {
         self.store = store
@@ -95,6 +101,37 @@ final class AppState {
               let index = restaurants.firstIndex(where: { $0.id == restaurantID }) else { return }
         restaurants[index] = updated
         store.save(restaurants)
+    }
+
+    // MARK: - Distance Sort
+
+    /// Called when the user picks distance sort: grabs a one-shot location fix, then
+    /// backfills coordinates for restaurants saved before lat/lng was stored.
+    /// Location failure (denied or unavailable) sets locationDenied so the view can
+    /// explain why the list isn't sorted, rather than failing silently.
+    func prepareDistanceSort() async {
+        do {
+            userLocation = try await locationService.currentLocation()
+            locationDenied = false
+        } catch {
+            locationDenied = true
+            return
+        }
+        await backfillCoordinates()
+    }
+
+    /// One-time migration path for pre-1.2 saves — coordinate-only fetches are the
+    /// cheapest Places SKU, and each restaurant only ever needs this once.
+    private func backfillCoordinates() async {
+        var didUpdate = false
+        for index in restaurants.indices where restaurants[index].latitude == nil {
+            let placeID = restaurants[index].placeID
+            guard let coordinate = await placesService.fetchCoordinate(placeID: placeID) else { continue }
+            restaurants[index].latitude = coordinate.latitude
+            restaurants[index].longitude = coordinate.longitude
+            didUpdate = true
+        }
+        if didUpdate { store.save(restaurants) }
     }
 
     func remove(id: UUID) {

@@ -1,9 +1,31 @@
+import CoreLocation
 import SwiftUI
+
+/// How the saved list is ordered. Sorting is a view-level projection — the persisted
+/// array order always means "manual order", so no sort ever calls store.save.
+enum SortOption: String, CaseIterable, Identifiable {
+    case manual = "Manual"
+    case price = "Price"
+    case rating = "Rating"
+    case distance = "Distance"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .manual: return "hand.draw"
+        case .price: return "dollarsign.circle"
+        case .rating: return "star"
+        case .distance: return "location"
+        }
+    }
+}
 
 struct HomeListView: View {
     @Environment(AppState.self) private var state
 
     @State private var selectedRestaurant: Restaurant? = nil
+    @State private var sortOption: SortOption = .manual
 
     var body: some View {
         @Bindable var state = state
@@ -16,14 +38,26 @@ struct HomeListView: View {
                     emptyState
                 } else {
                     List {
+                        if sortOption == .distance && state.locationDenied {
+                            locationDeniedNotice
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                        }
+
                         Section("Saved Spots") {
-                            ForEach(state.restaurants) { restaurant in
+                            ForEach(sortedRestaurants) { restaurant in
                                 restaurantRow(restaurant)
                                     .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
                                     .listRowSeparator(.hidden)
                                     .listRowBackground(Color.clear)
+                                    // Reordering a sorted projection is meaningless (it would
+                                    // snap back), so drag-to-reorder only exists in manual order.
+                                    // moveDisabled (vs. a conditional onMove handler) also avoids
+                                    // an @MainActor function-conversion error under Swift 6.2's
+                                    // default-isolation settings.
+                                    .moveDisabled(sortOption != .manual)
                             }
-                            .onDelete(perform: state.remove)
+                            .onDelete(perform: delete)
                             .onMove(perform: state.move)
                         }
                         .textCase(nil)
@@ -45,12 +79,33 @@ struct HomeListView: View {
                             .foregroundStyle(SavorTheme.mutedInk)
                     }
                 }
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Picker("Sort by", selection: $sortOption) {
+                            ForEach(SortOption.allCases) { option in
+                                Label(option.rawValue, systemImage: option.icon)
+                                    .tag(option)
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "arrow.up.arrow.down")
+                            .font(.headline)
+                            .foregroundStyle(SavorTheme.accent)
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Add Restaurant", systemImage: "plus") {
                         state.isPresentingAdd = true
                     }
                     .font(.headline)
                     .foregroundStyle(SavorTheme.accent)
+                }
+            }
+            .onChange(of: sortOption) { _, newValue in
+                // Location fix + coordinate backfill are only needed (and only billed/
+                // prompted) once the user actually asks for distance ordering
+                if newValue == .distance {
+                    Task { await state.prepareDistanceSort() }
                 }
             }
         }
@@ -62,6 +117,52 @@ struct HomeListView: View {
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
+    }
+
+    // MARK: - Sorting
+
+    /// The list as displayed: a sorted projection over the persisted array.
+    /// Manual returns the stored order untouched; the persisted data is never re-sorted.
+    private var sortedRestaurants: [Restaurant] {
+        switch sortOption {
+        case .manual:
+            return state.restaurants
+        case .price:
+            return state.restaurants.sorted(by: isOrderedByPrice)
+        case .rating:
+            // Best first; unrated restaurants carry 0.0 so they naturally land last
+            return state.restaurants.sorted { $0.rating > $1.rating }
+        case .distance:
+            // Until the location fix arrives (or if denied), show the manual order
+            guard let here = state.userLocation else { return state.restaurants }
+            return state.restaurants.sorted {
+                ($0.distance(from: here) ?? .greatestFiniteMagnitude)
+                    < ($1.distance(from: here) ?? .greatestFiniteMagnitude)
+            }
+        }
+    }
+
+    /// Comparator for price sort: cheapest first. nil (no price data from Google) maps
+    /// to Int.max so unpriced restaurants sort last — same sentinel approach as the
+    /// distance sort. Strict ordering: equal price levels return false.
+    private func isOrderedByPrice(_ a: Restaurant, _ b: Restaurant) -> Bool {
+        (a.priceLevel ?? Int.max) < (b.priceLevel ?? Int.max)
+    }
+
+    /// Swipe-to-delete hands us offsets into the *displayed* (sorted) array, which may
+    /// not match the stored array's order — map to stable IDs before mutating.
+    private func delete(atOffsets offsets: IndexSet) {
+        let ids = offsets.map { sortedRestaurants[$0].id }
+        for id in ids {
+            state.remove(id: id)
+        }
+    }
+
+    private var locationDeniedNotice: some View {
+        Label("Enable location access in Settings to sort by distance.", systemImage: "location.slash")
+            .font(.caption)
+            .foregroundStyle(SavorTheme.mutedInk)
+            .frame(maxWidth: .infinity, alignment: .center)
     }
 
     private func restaurantRow(_ restaurant: Restaurant) -> some View {

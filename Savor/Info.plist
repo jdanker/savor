@@ -4,5 +4,7 @@
 <dict>
 	<key>GooglePlacesAPIKey</key>
 	<string>$(GOOGLE_PLACES_API_KEY)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Savor uses your location to sort your saved restaurants by distance from you.</string>
 </dict>
 </plist>

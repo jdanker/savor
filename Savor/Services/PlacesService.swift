@@ -5,6 +5,7 @@
 //  Created by Jahred Danker on 12/22/25.
 //
 
+import CoreLocation
 import Foundation
 import GooglePlacesSwift
 import UIKit
@@ -82,7 +83,8 @@ final class PlacesService {
                 .types,
                 .editorialSummary,
                 .photos,
-                .websiteURL
+                .websiteURL,
+                .coordinate  // Essentials tier — doesn't bump the request into a pricier SKU
             ]
 
             let request = FetchPlaceRequest(placeID: placeID, placeProperties: fields)
@@ -161,6 +163,10 @@ final class PlacesService {
             let editorialSummary = place.editorialSummary
             let websiteURL = place.websiteURL
 
+            // place.location is non-optional in the SDK — it returns an invalid sentinel
+            // rather than nil when absent, so validate instead of storing (0, 0)
+            let coordinate = CLLocationCoordinate2DIsValid(place.location) ? place.location : nil
+
             let restaurant = Restaurant(
                 placeID: suggestion.placeID,
                 name: name,
@@ -168,6 +174,8 @@ final class PlacesService {
                 types: types,
                 priceLevel: priceLevel,
                 editorialSummary: editorialSummary,
+                latitude: coordinate?.latitude,
+                longitude: coordinate?.longitude,
                 websiteURL: websiteURL
             )
 
@@ -203,6 +211,17 @@ final class PlacesService {
         } catch {
             return .failure(error)
         }
+    }
+
+    /// Fetches only the coordinate for a place — used to backfill restaurants saved before
+    /// coordinates were stored. Coordinate-only requests are Essentials tier (cheapest SKU)
+    /// and, like refreshRestaurant, don't touch the autocomplete session token.
+    func fetchCoordinate(placeID: String) async -> CLLocationCoordinate2D? {
+        let request = FetchPlaceRequest(placeID: placeID, placeProperties: [.coordinate])
+        guard let result = try? await client.fetchPlace(with: request),
+              case .success(let place) = result,
+              CLLocationCoordinate2DIsValid(place.location) else { return nil }
+        return place.location
     }
 
     // MARK: - Private Helpers
