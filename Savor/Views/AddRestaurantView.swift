@@ -1,10 +1,9 @@
 import SwiftUI
-import GooglePlacesSwift
 
 struct AddRestaurantView: View {
     @Environment(AppState.self) private var state
 
-    @State private var suggestions: [AutocompletePlaceSuggestion] = []
+    @State private var suggestions: [PlaceSuggestion] = []
     @State private var searchTask: Task<Void, Never>?
     @FocusState private var isSearchFieldFocused: Bool
 
@@ -72,8 +71,10 @@ struct AddRestaurantView: View {
                     try? await Task.sleep(for: .milliseconds(300))
                     guard !Task.isCancelled else { return }
 
-                    let placesService = PlacesService()
-                    let result = await placesService.searchRestaurants(query: newValue)
+                    // Search through AppState's shared service — constructing a fresh
+                    // PlacesService here would mint a new autocomplete session token
+                    // per keystroke, billing every keypress as a separate session
+                    let result = await state.searchRestaurants(query: newValue)
 
                     switch result {
                     case .success(let results):
@@ -210,10 +211,10 @@ struct AddRestaurantView: View {
                             .frame(width: 46, height: 46)
 
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(suggestion.attributedPrimaryText)
+                                Text(suggestion.primaryText)
                                     .font(.headline)
                                     .foregroundStyle(SavorTheme.ink)
-                                Text(suggestion.attributedFullText)
+                                Text(suggestion.fullText)
                                     .font(.caption)
                                     .foregroundStyle(SavorTheme.mutedInk)
                                     .lineLimit(1)

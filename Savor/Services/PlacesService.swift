@@ -11,7 +11,7 @@ import GooglePlacesSwift
 import UIKit
 
 @MainActor
-final class PlacesService {
+final class PlacesService: PlacesProviding {
     // MARK: - Properties
     private lazy var client: PlacesClient = PlacesClient.shared
     private var sessionToken: AutocompleteSessionToken?
@@ -32,8 +32,8 @@ final class PlacesService {
 
     /// Search for restaurant suggestions based on user query
     /// - Parameter query: The search string from the user
-    /// - Returns: Result containing array of suggestions or error
-    func searchRestaurants(query: String) async -> Result<[AutocompletePlaceSuggestion], Error> {
+    /// - Returns: Result containing array of domain-level suggestions or error
+    func searchRestaurants(query: String) async -> Result<[PlaceSuggestion], Error> {
         if sessionToken == nil {
             sessionToken = AutocompleteSessionToken()
         }
@@ -55,13 +55,16 @@ final class PlacesService {
         // Extract place suggestions and return
         switch result {
         case .success(let response):
-            // TODO: Use compactMap to extract AutocompletePlaceSuggestion from .place cases
+            // Map the SDK's suggestion type to the domain type at the boundary —
+            // nothing outside this class sees GooglePlacesSwift types
             let placeSuggestions = response.compactMap {
-                suggestion -> AutocompletePlaceSuggestion?  in
-                if case .place(let placeSuggestion) = suggestion {
-                    return placeSuggestion
-                }
-                return nil
+                suggestion -> PlaceSuggestion? in
+                guard case .place(let place) = suggestion else { return nil }
+                return PlaceSuggestion(
+                    placeID: place.placeID,
+                    primaryText: place.attributedPrimaryText,
+                    fullText: place.attributedFullText
+                )
             }
             return .success(placeSuggestions)
 
@@ -128,7 +131,7 @@ final class PlacesService {
     /// High-level method: converts a suggestion into a Restaurant model
     /// - Parameter suggestion: The selected autocomplete suggestion
     /// - Returns: Result containing Restaurant or error
-    func createRestaurant(from suggestion: AutocompletePlaceSuggestion) async -> Result<Restaurant, Error> {
+    func createRestaurant(from suggestion: PlaceSuggestion) async -> Result<Restaurant, Error> {
         // First fetch full place details
         let detailsResult = await fetchPlaceDetails(placeID: suggestion.placeID)
 

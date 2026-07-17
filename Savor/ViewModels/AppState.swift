@@ -7,8 +7,8 @@
 import CoreLocation
 import Foundation
 import Observation
-import GooglePlacesSwift
 import SwiftUI
+import UIKit
 
 @Observable
 @MainActor
@@ -34,11 +34,18 @@ final class AppState {
     var locationDenied = false
 
     private let store: RestaurantStore
-    private let placesService = PlacesService()
+    // Typed as the protocol, not the concrete class: swapping Google-direct for the
+    // Go proxy (Phase 1) — or a mock in tests/previews — is a change to this default
+    // argument, not to any view or mutation logic
+    private let placesService: any PlacesProviding
     private let locationService = LocationService()
 
-    init(store: RestaurantStore) {
+    // nil-default rather than `= PlacesService()`: default arguments evaluate in a
+    // nonisolated context, so a @MainActor init can't be a default value — but the
+    // init body is MainActor-isolated and can construct it fine
+    init(store: RestaurantStore, placesService: (any PlacesProviding)? = nil) {
         self.store = store
+        self.placesService = placesService ?? PlacesService()
     }
     
     func load() { restaurants = store.load() }
@@ -72,8 +79,15 @@ final class AppState {
 
     // MARK: - Autocomplete Methods
 
+    /// Autocomplete passthrough — views must not construct their own PlacesProviding;
+    /// sharing this instance is what keeps the SDK's autocomplete session token (a
+    /// billing optimization) alive across keystrokes.
+    func searchRestaurants(query: String) async -> Result<[PlaceSuggestion], Error> {
+        await placesService.searchRestaurants(query: query)
+    }
+
     /// Called when user selects a restaurant from autocomplete suggestions
-    func selectPlace(suggestion: AutocompletePlaceSuggestion) async {
+    func selectPlace(suggestion: PlaceSuggestion) async {
         isLoadingPlaceDetails = true
         let selectedPlace = await placesService.createRestaurant(from: suggestion)
         switch selectedPlace {
@@ -132,6 +146,11 @@ final class AppState {
             didUpdate = true
         }
         if didUpdate { store.save(restaurants) }
+    }
+
+    /// Photo passthrough for views — same single-service rule as searchRestaurants.
+    func photos(for placeID: String) async -> [UIImage] {
+        await placesService.fetchPhotos(placeID: placeID)
     }
 
     func remove(id: UUID) {

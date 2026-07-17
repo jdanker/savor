@@ -3,10 +3,10 @@ import SwiftUI
 struct PhotoCarouselView: View {
     let placeID: String
 
+    @Environment(AppState.self) private var state
+
     @State private var images: [UIImage] = []
     @State private var isLoading = false
-
-    private let placesService = PlacesService()
 
     private var isPreviewPlace: Bool {
         placeID.hasPrefix("preview.")
@@ -23,7 +23,7 @@ struct PhotoCarouselView: View {
         .task {
             guard !isPreviewPlace else { return }
             isLoading = true
-            images = await placesService.fetchPhotos(placeID: placeID)
+            images = await state.photos(for: placeID)
             isLoading = false
         }
     }
