@@ -5,12 +5,13 @@
 //  Created by Jahred Danker on 12/22/25.
 //
 
+import CoreLocation
 import Foundation
 import GooglePlacesSwift
 import UIKit
 
 @MainActor
-final class PlacesService {
+final class PlacesService: PlacesProviding {
     // MARK: - Properties
     private lazy var client: PlacesClient = PlacesClient.shared
     private var sessionToken: AutocompleteSessionToken?
@@ -31,8 +32,8 @@ final class PlacesService {
 
     /// Search for restaurant suggestions based on user query
     /// - Parameter query: The search string from the user
-    /// - Returns: Result containing array of suggestions or error
-    func searchRestaurants(query: String) async -> Result<[AutocompletePlaceSuggestion], Error> {
+    /// - Returns: Result containing array of domain-level suggestions or error
+    func searchRestaurants(query: String) async -> Result<[PlaceSuggestion], Error> {
         if sessionToken == nil {
             sessionToken = AutocompleteSessionToken()
         }
@@ -54,13 +55,16 @@ final class PlacesService {
         // Extract place suggestions and return
         switch result {
         case .success(let response):
-            // TODO: Use compactMap to extract AutocompletePlaceSuggestion from .place cases
+            // Map the SDK's suggestion type to the domain type at the boundary —
+            // nothing outside this class sees GooglePlacesSwift types
             let placeSuggestions = response.compactMap {
-                suggestion -> AutocompletePlaceSuggestion?  in
-                if case .place(let placeSuggestion) = suggestion {
-                    return placeSuggestion
-                }
-                return nil
+                suggestion -> PlaceSuggestion? in
+                guard case .place(let place) = suggestion else { return nil }
+                return PlaceSuggestion(
+                    placeID: place.placeID,
+                    primaryText: place.attributedPrimaryText,
+                    fullText: place.attributedFullText
+                )
             }
             return .success(placeSuggestions)
 
@@ -82,7 +86,8 @@ final class PlacesService {
                 .types,
                 .editorialSummary,
                 .photos,
-                .websiteURL
+                .websiteURL,
+                .coordinate  // Essentials tier — doesn't bump the request into a pricier SKU
             ]
 
             let request = FetchPlaceRequest(placeID: placeID, placeProperties: fields)
@@ -126,7 +131,7 @@ final class PlacesService {
     /// High-level method: converts a suggestion into a Restaurant model
     /// - Parameter suggestion: The selected autocomplete suggestion
     /// - Returns: Result containing Restaurant or error
-    func createRestaurant(from suggestion: AutocompletePlaceSuggestion) async -> Result<Restaurant, Error> {
+    func createRestaurant(from suggestion: PlaceSuggestion) async -> Result<Restaurant, Error> {
         // First fetch full place details
         let detailsResult = await fetchPlaceDetails(placeID: suggestion.placeID)
 
@@ -161,6 +166,10 @@ final class PlacesService {
             let editorialSummary = place.editorialSummary
             let websiteURL = place.websiteURL
 
+            // place.location is non-optional in the SDK — it returns an invalid sentinel
+            // rather than nil when absent, so validate instead of storing (0, 0)
+            let coordinate = CLLocationCoordinate2DIsValid(place.location) ? place.location : nil
+
             let restaurant = Restaurant(
                 placeID: suggestion.placeID,
                 name: name,
@@ -168,6 +177,8 @@ final class PlacesService {
                 types: types,
                 priceLevel: priceLevel,
                 editorialSummary: editorialSummary,
+                latitude: coordinate?.latitude,
+                longitude: coordinate?.longitude,
                 websiteURL: websiteURL
             )
 
@@ -203,6 +214,17 @@ final class PlacesService {
         } catch {
             return .failure(error)
         }
+    }
+
+    /// Fetches only the coordinate for a place — used to backfill restaurants saved before
+    /// coordinates were stored. Coordinate-only requests are Essentials tier (cheapest SKU)
+    /// and, like refreshRestaurant, don't touch the autocomplete session token.
+    func fetchCoordinate(placeID: String) async -> CLLocationCoordinate2D? {
+        let request = FetchPlaceRequest(placeID: placeID, placeProperties: [.coordinate])
+        guard let result = try? await client.fetchPlace(with: request),
+              case .success(let place) = result,
+              CLLocationCoordinate2DIsValid(place.location) else { return nil }
+        return place.location
     }
 
     // MARK: - Private Helpers

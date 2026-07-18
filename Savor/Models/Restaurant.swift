@@ -5,12 +5,22 @@
 //  Created by Jahred Danker on 9/20/25.
 //
 
+import CoreLocation
 import Foundation
 import SwiftUI
 
 enum VisitStatus: String, Codable {
     case none
     case been
+
+    var label: String {
+        switch self {
+        case .none:
+            return "None"
+        case .been:
+            return "Been"
+        }
+    }
 }
 
 struct Restaurant: Hashable, Codable, Identifiable {
@@ -23,6 +33,12 @@ struct Restaurant: Hashable, Codable, Identifiable {
     var types: [String]
     var priceLevel: Int?
     var editorialSummary: String?
+
+    // Stored as raw Doubles (not CLLocationCoordinate2D) to keep the model Codable without
+    // conditional conformances. Optional so pre-1.2 saves decode cleanly — backfilled lazily
+    // the first time distance sort is used.
+    var latitude: Double?
+    var longitude: Double?
 
     // Enriched data — populated lazily via refreshPlaceData, not on initial add
     var websiteURL: URL?
@@ -42,6 +58,8 @@ struct Restaurant: Hashable, Codable, Identifiable {
         addedAt: Date = Date(),
         priceLevel: Int?,
         editorialSummary: String?,
+        latitude: Double? = nil,
+        longitude: Double? = nil,
         websiteURL: URL? = nil,
         reviewSummary: String? = nil,
         lastRefreshedAt: Date? = nil,
@@ -55,6 +73,8 @@ struct Restaurant: Hashable, Codable, Identifiable {
         self.addedAt = addedAt
         self.priceLevel = priceLevel
         self.editorialSummary = editorialSummary
+        self.latitude = latitude
+        self.longitude = longitude
         self.websiteURL = websiteURL
         self.reviewSummary = reviewSummary
         self.lastRefreshedAt = lastRefreshedAt
@@ -63,6 +83,13 @@ struct Restaurant: Hashable, Codable, Identifiable {
 }
 
 extension Restaurant {
+    /// Meters from the given location, or nil if this restaurant has no stored coordinates
+    /// (saved before v1.2 and not yet backfilled).
+    func distance(from location: CLLocation) -> CLLocationDistance? {
+        guard let latitude, let longitude else { return nil }
+        return CLLocation(latitude: latitude, longitude: longitude).distance(from: location)
+    }
+
     /// True if enriched data (website, review summary) has never been fetched or is older than 30 days
     var needsRefresh: Bool {
         guard let refreshed = lastRefreshedAt else { return true }
@@ -130,6 +157,24 @@ extension Restaurant {
         guard let level = priceLevel, (1...4).contains(level) else { return "" }
         return String(repeating: "$", count: level)
     }
+
+    var iconName: String {
+        let type = primaryTypeDisplay.lowercased()
+
+        if type.contains("sushi") || type.contains("japanese") {
+            return "fish.fill"
+        }
+        if type.contains("cafe") || type.contains("coffee") || type.contains("bakery") {
+            return "cup.and.saucer.fill"
+        }
+        if type.contains("bar") || type.contains("pub") || type.contains("wine") {
+            return "wineglass.fill"
+        }
+        if type.contains("ice cream") || type.contains("dessert") {
+            return "birthday.cake.fill"
+        }
+        return "fork.knife"
+    }
 }
 
 #if DEBUG
@@ -143,6 +188,8 @@ extension Restaurant {
                     types: ["restaurant", "japanese_restaurant"],
                     priceLevel: 3,
                     editorialSummary: "Fresh omakase and creative rolls in a minimalist setting.",
+                    latitude: 47.6205,
+                    longitude: -122.3493,
                     websiteURL: URL(string: "https://jdanker.com"),
                     reviewSummary: "Guests rave about the melt-in-your-mouth tuna and the chef's creative seasonal rolls. The minimalist space keeps the focus on the fish.",
                     lastRefreshedAt: Date()
@@ -154,6 +201,8 @@ extension Restaurant {
                     types: ["cafe", "restaurant"],
                     priceLevel: 2,
                     editorialSummary: "A beloved neighborhood cafe known for its house-roasted coffee and seasonal brunch menu. The sun-drenched patio fills up fast on weekends, so arrive early or expect a wait.",
+                    latitude: 47.6152,
+                    longitude: -122.3199,
                     websiteURL: URL(string: "https://jdanker.com"),
                     reviewSummary: "Locals love the single-origin pour-overs and the rotating brunch specials. Expect a wait on weekends — most agree it's worth it.",
                     lastRefreshedAt: Date()

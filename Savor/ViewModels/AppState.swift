@@ -4,10 +4,11 @@
 //
 //  Created by Jahred Danker on 9/20/25.
 //
+import CoreLocation
 import Foundation
 import Observation
-import GooglePlacesSwift
 import SwiftUI
+import UIKit
 
 @Observable
 @MainActor
@@ -28,11 +29,23 @@ final class AppState {
 
     var isPresentingAdd = false
 
-    private let store: RestaurantStore
-    private let placesService = PlacesService()
+    // MARK: - Distance Sort Properties
+    var userLocation: CLLocation?
+    var locationDenied = false
 
-    init(store: RestaurantStore) {
+    private let store: RestaurantStore
+    // Typed as the protocol, not the concrete class: swapping Google-direct for the
+    // Go proxy (Phase 1) — or a mock in tests/previews — is a change to this default
+    // argument, not to any view or mutation logic
+    private let placesService: any PlacesProviding
+    private let locationService = LocationService()
+
+    // nil-default rather than `= PlacesService()`: default arguments evaluate in a
+    // nonisolated context, so a @MainActor init can't be a default value — but the
+    // init body is MainActor-isolated and can construct it fine
+    init(store: RestaurantStore, placesService: (any PlacesProviding)? = nil) {
         self.store = store
+        self.placesService = placesService ?? PlacesService()
     }
     
     func load() { restaurants = store.load() }
@@ -66,8 +79,15 @@ final class AppState {
 
     // MARK: - Autocomplete Methods
 
+    /// Autocomplete passthrough — views must not construct their own PlacesProviding;
+    /// sharing this instance is what keeps the SDK's autocomplete session token (a
+    /// billing optimization) alive across keystrokes.
+    func searchRestaurants(query: String) async -> Result<[PlaceSuggestion], Error> {
+        await placesService.searchRestaurants(query: query)
+    }
+
     /// Called when user selects a restaurant from autocomplete suggestions
-    func selectPlace(suggestion: AutocompletePlaceSuggestion) async {
+    func selectPlace(suggestion: PlaceSuggestion) async {
         isLoadingPlaceDetails = true
         let selectedPlace = await placesService.createRestaurant(from: suggestion)
         switch selectedPlace {
@@ -95,6 +115,42 @@ final class AppState {
               let index = restaurants.firstIndex(where: { $0.id == restaurantID }) else { return }
         restaurants[index] = updated
         store.save(restaurants)
+    }
+
+    // MARK: - Distance Sort
+
+    /// Called when the user picks distance sort: grabs a one-shot location fix, then
+    /// backfills coordinates for restaurants saved before lat/lng was stored.
+    /// Location failure (denied or unavailable) sets locationDenied so the view can
+    /// explain why the list isn't sorted, rather than failing silently.
+    func prepareDistanceSort() async {
+        do {
+            userLocation = try await locationService.currentLocation()
+            locationDenied = false
+        } catch {
+            locationDenied = true
+            return
+        }
+        await backfillCoordinates()
+    }
+
+    /// One-time migration path for pre-1.2 saves — coordinate-only fetches are the
+    /// cheapest Places SKU, and each restaurant only ever needs this once.
+    private func backfillCoordinates() async {
+        var didUpdate = false
+        for index in restaurants.indices where restaurants[index].latitude == nil {
+            let placeID = restaurants[index].placeID
+            guard let coordinate = await placesService.fetchCoordinate(placeID: placeID) else { continue }
+            restaurants[index].latitude = coordinate.latitude
+            restaurants[index].longitude = coordinate.longitude
+            didUpdate = true
+        }
+        if didUpdate { store.save(restaurants) }
+    }
+
+    /// Photo passthrough for views — same single-service rule as searchRestaurants.
+    func photos(for placeID: String) async -> [UIImage] {
+        await placesService.fetchPhotos(placeID: placeID)
     }
 
     func remove(id: UUID) {
