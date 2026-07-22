@@ -56,8 +56,7 @@ fastlane/test_output
 Secrets.xcconfig
 
 #Claude
-.claude
 screenshots/
-.agents/
-skills-lock.json
-agents.md
+.claude/settings.local.json
+CLAUDE.local.md
+
