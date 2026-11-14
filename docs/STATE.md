@@ -2,7 +2,7 @@
 <!-- Overwritten at the end of every working session. Keep under ~20 lines. -->
 _Last updated: 2026-11-14_
 
-## Works now (v1.3 + iPhone Duo branch `feature/iphone-duo-support`)
+## Works now (1.3 — version bumped, not yet submitted; branch `feature/iphone-duo-support`)
 - Tabs Spots / Lists / Search, each a NavigationSplitView: detail in a column at
   regular width (Duo open), medium/large sheet at compact (Duo closed, iPhones)
 - Lists tab: lists → list pushes inside the sidebar; restaurant in the detail column
