@@ -27,7 +27,8 @@ struct SearchTabView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        // Same adaptive shape as the Spots tab: see HomeListView / AdaptiveRestaurantDetail.
+        NavigationSplitView(preferredCompactColumn: .constant(.sidebar)) {
             ZStack {
                 SavorBackground()
 
@@ -56,12 +57,11 @@ struct SearchTabView: View {
             }
             .navigationTitle("Search")
             .searchable(text: $query, prompt: "Search your saved spots")
+            .savorSidebarColumnWidth()
+        } detail: {
+            RestaurantDetailColumn(selection: selectedRestaurant)
         }
-        .sheet(item: $selectedRestaurant) { restaurant in
-            RestaurantDetailView(restaurantID: restaurant.id)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-        }
+        .compactRestaurantSheet(selection: $selectedRestaurant)
     }
 }
 

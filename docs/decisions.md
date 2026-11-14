@@ -77,3 +77,18 @@ user's only copy with an empty array. Load now distinguishes missing-file
 `*.corrupt-<epoch>` before returning empty — the data survives on disk for a
 fixed build to recover. Tests catch format breaks before shipping; quarantine
 bounds the damage of anything tests didn't foresee.
+
+**2026-11 — iPhone Duo: split views chosen by size class, with the sheet kept at
+compact width.** Building with the iOS 27.1+ SDK already makes Savor edge-to-edge
+on both Duo displays (vertical tab/toolbar under the status bar), and the app had
+no `UIScreen.main`/idiom/orientation code to remove. The real work was using the
+inner display: each tab became a `NavigationSplitView` so detail sits beside the
+list at regular width. At compact width (Duo closed, every other iPhone) the
+existing medium/large detail sheet stays, rather than letting the split view
+collapse to push navigation. That keeps the phone UX unchanged, at the cost of
+two presentation paths. They're isolated in `AdaptiveRestaurantDetail.swift`,
+and one shared selection drives both, so folding hands the open restaurant
+between sheet and column instead of dropping it. The cost: the sheet binding has
+to ignore the nil SwiftUI writes back when unfolding forces the sheet closed.
+Lists moved from `navigationDestination` pushes to `List(selection:)`, the
+split-view-native pattern, which still becomes a push when collapsed.

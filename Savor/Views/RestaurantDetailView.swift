@@ -1,12 +1,32 @@
 import SwiftUI
 
+/// Resolves the restaurant live from AppState on every render, then hands the
+/// value down. If it's gone (deleted while this view is open, which is easy
+/// once detail sits in a split-view column beside the list) this shows a
+/// placeholder instead of force-unwrapping a missing lookup.
 struct RestaurantDetailView: View {
     @Environment(AppState.self) private var state
     let restaurantID: UUID
 
-    private var restaurant: Restaurant {
-        state.restaurants.first(where: { $0.id == restaurantID })!
+    var body: some View {
+        if let restaurant = state.restaurants.first(where: { $0.id == restaurantID }) {
+            RestaurantDetailContent(restaurant: restaurant)
+        } else {
+            ZStack {
+                SavorBackground()
+                ContentUnavailableView(
+                    "Spot Removed",
+                    systemImage: "fork.knife",
+                    description: Text("This restaurant is no longer in your saved spots.")
+                )
+            }
+        }
     }
+}
+
+private struct RestaurantDetailContent: View {
+    @Environment(AppState.self) private var state
+    let restaurant: Restaurant
 
     var body: some View {
         ZStack {
@@ -43,7 +63,7 @@ struct RestaurantDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task {
             if restaurant.needsRefresh {
-                await state.refreshPlaceData(for: restaurantID)
+                await state.refreshPlaceData(for: restaurant.id)
             }
         }
     }

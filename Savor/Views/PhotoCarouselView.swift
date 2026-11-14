@@ -3,6 +3,8 @@ import SwiftUI
 struct PhotoCarouselView: View {
     let placeID: String
 
+    private static let maxPhotoWidth: CGFloat = 420
+
     @Environment(AppState.self) private var state
 
     @State private var images: [UIImage] = []
@@ -32,10 +34,23 @@ struct PhotoCarouselView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 12) {
                 ForEach(Array(images.enumerated()), id: \.offset) { _, image in
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 280, height: 200)
+                    // Sized from the scroll view's width, not a fixed 280×200: the
+                    // detail column on iPhone Duo's inner display is much wider than
+                    // a phone sheet. 80% of the width leaves the next photo peeking
+                    // in (the scroll affordance). The cap stops one photo from
+                    // filling a very wide column. Fixed 7:5 tile, and the photo
+                    // fills it in an overlay, so odd source ratios crop instead of
+                    // stretching the layout.
+                    Color.clear
+                        .aspectRatio(7.0 / 5.0, contentMode: .fit)
+                        .containerRelativeFrame(.horizontal) { length, _ in
+                            min(length * 0.8, Self.maxPhotoWidth)
+                        }
+                        .overlay {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                        }
                         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                         .overlay(
                             RoundedRectangle(cornerRadius: 22, style: .continuous)
@@ -43,6 +58,9 @@ struct PhotoCarouselView: View {
                         )
                 }
             }
+            // .viewAligned snaps only to children of a scrollTargetLayout. Without
+            // this, the existing snap behavior was silently a no-op.
+            .scrollTargetLayout()
         }
         .scrollTargetBehavior(.viewAligned)
     }

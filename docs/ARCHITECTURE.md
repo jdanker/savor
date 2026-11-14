@@ -13,7 +13,7 @@ flowchart TD
     State --> Proto[PlacesProviding protocol]
     Proto --> Svc[PlacesService<br/>Google Places SDK impl]
     State --> Loc[LocationService<br/>one-shot fix]
-    App --> Tabs[RootTabView<br/>Spots / Lists / Search tabs] --> Views[HomeListView / ListsTabView+ListDetailView /<br/>SearchTabView / AddRestaurantView /<br/>RestaurantDetailView / PhotoCarouselView]
+    App --> Tabs[RootTabView<br/>Spots / Lists / Search tabs<br/>each a NavigationSplitView] --> Views[HomeListView / ListsTabView+ListDetailView /<br/>SearchTabView / AddRestaurantView /<br/>RestaurantDetailView / PhotoCarouselView]
     Views -->|read + call mutations| State
 ```
 
@@ -24,6 +24,11 @@ Key invariants:
   the SDK for the Go proxy (Phase 1) is a change to one default argument in `AppState.init`.
 - **Two-tier data fetching** (billing): cheap fields on save (`createRestaurant`),
   expensive fields on demand (`refreshRestaurant`, gated by 30-day `needsRefresh`).
+- **Layout follows available width, never device type.** Each tab is a
+  `NavigationSplitView`: regular width (iPhone Duo open) shows restaurant detail
+  in a column, compact width uses the sheet. Branch on `horizontalSizeClass` /
+  geometry only, never `userInterfaceIdiom`, `UIScreen.main` or orientation
+  (see `concepts/adaptive-split-layout.md`).
 
 ## Code Map
 <!-- Rule: every new file gets one line here, in the same change that creates it. -->
@@ -35,14 +40,15 @@ Key invariants:
 
 ### Views/
 - `RootTabView.swift` — tab shell: Spots / Lists / Search (plain tab, deliberately not `role: .search` — see decisions.md), `.tabBarMinimizeBehavior(.onScrollDown)`
-- `HomeListView.swift` — Spots tab (all saved spots); defines `SortOption` + shared `apply` sort projection, swipe actions, drag-reorder (manual sort only), delete maps displayed offsets → stable IDs
+- `HomeListView.swift` — Spots tab (all saved spots, 2-column split view); defines `SortOption` + shared `apply` sort projection, swipe actions, drag-reorder (manual sort only), delete maps displayed offsets → stable IDs
 - `RestaurantRow.swift` — shared row card + common interactions (tap detail, Been swipe, `ListMembershipMenu` long-press); deletion stays with parents (meaning differs per surface)
-- `ListsTabView.swift` — Lists tab: overview, create/rename/delete, Smart Sort trigger; pushes detail by list *ID*
-- `ListDetailView.swift` — one list's spots; per-list manual reorder, swipe-delete = remove from list only
-- `SearchTabView.swift` — search tab content; local search over saved spots (name/type/summary), no API calls
+- `ListsTabView.swift` — Lists tab, 3-column split view (lists → list → restaurant): overview, create/rename/delete, Smart Sort trigger; list selection by *ID*
+- `ListDetailView.swift` — one list's spots (Lists tab content column; restaurant selection bound from parent); per-list manual reorder, swipe-delete = remove from list only
+- `SearchTabView.swift` — search tab content (2-column split view); local search over saved spots (name/type/summary), no API calls
 - `AddRestaurantView.swift` — search sheet; 300ms debounced autocomplete through AppState's shared service, viewState enum (idle/loading/error/noResults/results)
-- `RestaurantDetailView.swift` — detail sheet; lazy enrichment via `.task` + `needsRefresh`, fractional star rendering
-- `PhotoCarouselView.swift` — horizontal photo scroll; skips fetch for `preview.` placeIDs
+- `RestaurantDetailView.swift` — restaurant detail (split column or sheet); resolves by ID, shows "Spot Removed" if deleted while open; lazy enrichment via `.task` + `needsRefresh`, fractional star rendering
+- `AdaptiveRestaurantDetail.swift` — `RestaurantDetailColumn` + `.compactRestaurantSheet`: one selection drives the split detail column (regular) or the sheet (compact), surviving Duo fold/unfold; shared sidebar width
+- `PhotoCarouselView.swift` — horizontal photo scroll, container-relative 7:5 tiles (80% width, max 420pt); skips fetch for `preview.` placeIDs
 
 ### ViewModels/
 - `AppState.swift` — `@Observable @MainActor`; owns `[Restaurant]` + `[RestaurantList]`, all mutations (incl. list CRUD/membership + Smart Sort), autocomplete/photo passthroughs, distance-sort prep + coordinate backfill
