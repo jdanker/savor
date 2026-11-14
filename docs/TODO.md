@@ -3,9 +3,6 @@
      forever. STATE.md is for awareness; this file is for work. -->
 
 ## Bugs
-- [ ] `RestaurantDetailView.restaurant` force-unwraps `first(where:)` — crashes if
-      the restaurant is deleted while its detail sheet is open. Return early /
-      dismiss on nil instead.
 - [ ] `AppState.commitAdd` trims `draftPlaceID` into a local, then saves the
       untrimmed value.
 
@@ -26,6 +23,14 @@
       autocomplete flow is fully trusted.
 - [ ] Replace blanket `.claude/` gitignore with `.claude/settings.local.json` only;
       un-ignore `CLAUDE.md`.
+
+## iPhone Duo
+- [ ] App Store Connect: add iPhone Duo screenshots (required for all
+      submissions from April 2027; also earns the "Made for iPhone Duo" badge).
+- [ ] Highlight the selected row in split-view sidebars (RestaurantRow is a tap
+      button, so there's no List selection styling yet).
+- [ ] Verify photo carousel sizing with real photos in the wide detail column
+      (seeded `preview.` places skip photo fetches).
 
 ## Phase 1
 - [ ] `SavorAPIService: PlacesProviding` targeting savor-api (blocked on server

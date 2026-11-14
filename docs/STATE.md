@@ -1,34 +1,27 @@
 # STATE
 <!-- Overwritten at the end of every working session. Keep under ~20 lines. -->
-_Last updated: 2026-08-08_
+_Last updated: 2026-11-14_
 
-## Works now (v1.3 in repo)
-- Tabs: Spots / Lists / Search (plain attached tab — role .search rejected,
-  see decisions.md; bar minimizes on scroll-down)
-- Spots: sort (manual/price/rating/distance), reorder, swipe delete + Been toggle
-- Lists: create/rename/delete in Lists tab, push into list detail (per-list manual
-  order, swipe = remove-from-list), long-press any row → toggle membership
-- Smart Sort (Lists tab toolbar): rule-based classifier over stored Google types,
-  materializes editable lists, re-runs skip already-filed spots
-- Search tab: local filter over saved spots (name/type/summary), no API calls
-- Add: debounced autocomplete → place details → save (cheap fields only)
-- Detail: photo carousel, lazy enrichment (website + review summary, 30-day refresh)
-- Persistence: `restaurants.json` + `lists.json`, save-on-every-mutation
-- Tests: 19 baseline unit tests (classifier, sort projection, list mutations,
-  persistence reload) — Swift Testing, isolated temp-dir stores, mocked Places
+## Works now (v1.3 + iPhone Duo branch `feature/iphone-duo-support`)
+- Tabs Spots / Lists / Search, each a NavigationSplitView: detail in a column at
+  regular width (Duo open), medium/large sheet at compact (Duo closed, iPhones)
+- Lists tab: lists → list pushes inside the sidebar; restaurant in the detail column
+- Built with the iOS 27.2 SDK: edge-to-edge on Duo, vertical tab bar/toolbar
+- Detail no longer crashes if the spot is deleted while open ("Spot Removed")
+- Photo carousel tiles size to the container (7:5, 80% width, max 420pt)
 
 ## In flight
-- Nothing mid-implementation.
+- Nothing mid-implementation. Duo verified on the sim (iOS 27.2 runtime) in
+  both poses, including fold/unfold handoff; poses switch in Xcode 27's Device
+  Hub app (Simulator.app is gone), not via simctl.
 
 ## Next
-1. Lists follow-ups in TODO.md (add-into-list flow, delete-semantics hint)
-2. Phase 1: `SavorAPIService: PlacesProviding` targeting savor-api endpoints
+1. Duo follow-ups in TODO.md (App Store screenshots due April 2027)
+2. Lists follow-ups; Phase 1 `SavorAPIService: PlacesProviding`
 
 ## Landmines
-- Tests run in parallel — anything touching files needs its own temp dir
-  (see TestSupport.makeTempStore); scheme's Testables block was added by hand
-- Swipe-delete: remove-from-list in ListDetailView, delete-everywhere in Spots
-  (also strips the ID from all lists via `stripFromAllLists`)
-- Shared row UI lives in `RestaurantRow`; deletion handlers stay per-surface
+- Present restaurant detail only via `RestaurantDetailColumn` +
+  `.compactRestaurantSheet` — a raw `.sheet` breaks fold/unfold handoff
+- Never branch layout on idiom / `UIScreen.main` / orientation (Duo guidance)
+- Tests run in parallel — file-touching tests need TestSupport.makeTempStore
 - Sort projection is shared as `SortOption.apply` — defined in HomeListView.swift
-- Known bugs tracked in docs/TODO.md — check before touching AppState or DetailView

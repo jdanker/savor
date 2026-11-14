@@ -5,16 +5,19 @@
 
 import SwiftUI
 
-/// One list's spots, pushed from the Lists tab. Holds only the list ID and
-/// resolves the list from AppState each render — if the list is deleted while
-/// visible, the view degrades to its empty state instead of crashing on a
-/// stale copy.
+/// One list's spots, pushed inside the Lists tab's sidebar stack. Holds only the
+/// list ID and resolves the list from AppState each render — if the list is
+/// deleted while visible, the view degrades to its empty state instead of
+/// crashing on a stale copy.
 struct ListDetailView: View {
     @Environment(AppState.self) private var state
 
     let listID: UUID
 
-    @State private var selectedRestaurant: Restaurant? = nil
+    /// Owned by ListsTabView: the restaurant detail is the split view's detail
+    /// column (or a sheet at compact width), which this view doesn't control.
+    @Binding var selectedRestaurant: Restaurant?
+
     @State private var sortOption: SortOption = .manual
 
     private var list: RestaurantList? {
@@ -82,17 +85,17 @@ struct ListDetailView: View {
                 Task { await state.prepareDistanceSort() }
             }
         }
-        .sheet(item: $selectedRestaurant) { restaurant in
-            RestaurantDetailView(restaurantID: restaurant.id)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-        }
     }
 
     /// Inside a list, swipe-delete means "remove from this list" — the restaurant
     /// stays saved (All Spots and other lists are untouched).
     private func removeFromList(atOffsets offsets: IndexSet) {
         let ids = offsets.map { sortedRestaurants[$0].id }
+        // Still saved, but no longer in this list: keep the detail column from
+        // showing a spot that has left the list beside it.
+        if let selected = selectedRestaurant, ids.contains(selected.id) {
+            selectedRestaurant = nil
+        }
         for id in ids {
             state.removeRestaurant(id, fromList: listID)
         }
@@ -117,7 +120,7 @@ struct ListDetailView: View {
 #if DEBUG
 #Preview {
     NavigationStack {
-        ListDetailView(listID: UUID())
+        ListDetailView(listID: UUID(), selectedRestaurant: .constant(nil))
     }
     .environment(AppState.preview)
 }

@@ -77,3 +77,24 @@ user's only copy with an empty array. Load now distinguishes missing-file
 `*.corrupt-<epoch>` before returning empty — the data survives on disk for a
 fixed build to recover. Tests catch format breaks before shipping; quarantine
 bounds the damage of anything tests didn't foresee.
+
+**2026-11 — iPhone Duo: split views chosen by size class, with the sheet kept at
+compact width.** Building with the iOS 27.1+ SDK already makes Savor edge-to-edge
+on both Duo displays (vertical tab/toolbar under the status bar), and the app had
+no `UIScreen.main`/idiom/orientation code to remove. The real work was using the
+inner display: each tab became a `NavigationSplitView` so detail sits beside the
+list at regular width. At compact width (Duo closed, every other iPhone) the
+existing medium/large detail sheet stays, rather than letting the split view
+collapse to push navigation. That keeps the phone UX unchanged, at the cost of
+two presentation paths. They're isolated in `AdaptiveRestaurantDetail.swift`,
+and one shared selection drives both, so folding hands the open restaurant
+between sheet and column instead of dropping it. The sheet has its own `@State`
+synced from the selection, not a computed binding with a nil-ignoring setter.
+That setter version failed on the Duo simulator: SwiftUI wrote the dismissal
+nil through the binding captured while still compact, and the selection was
+lost. Lists stays a *two*-column split (lists → list, pushed inside the sidebar
+column, with restaurant detail beside it). A three-column version was tried
+first, but the inner display (~950pt) can't fit three columns, so the system
+hid the lists column even with `columnVisibility = .all`.
+Search pins its field visible (`.navigationBarDrawer(.always)`) at regular
+width, because the sidebar default hides it until you pull down.

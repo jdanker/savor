@@ -54,7 +54,11 @@ struct HomeListView: View {
     var body: some View {
         @Bindable var state = state
 
-        NavigationStack {
+        // Split view, not a NavigationStack: on a regular-width window (iPhone Duo
+        // open) the detail sits in a column beside the list. Pinned to the sidebar
+        // when collapsed, because compact width shows detail as a sheet
+        // (compactRestaurantSheet), never as a pushed column.
+        NavigationSplitView(preferredCompactColumn: .constant(.sidebar)) {
             ZStack {
                 SavorBackground()
 
@@ -134,15 +138,14 @@ struct HomeListView: View {
                     Task { await state.prepareDistanceSort() }
                 }
             }
+            .savorSidebarColumnWidth()
+        } detail: {
+            RestaurantDetailColumn(selection: selectedRestaurant)
         }
         .sheet(isPresented: $state.isPresentingAdd) {
             AddRestaurantView()
         }
-        .sheet(item: $selectedRestaurant) { restaurant in
-            RestaurantDetailView(restaurantID: restaurant.id)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-        }
+        .compactRestaurantSheet(selection: $selectedRestaurant)
     }
 
     private var sortedRestaurants: [Restaurant] {
@@ -155,6 +158,11 @@ struct HomeListView: View {
     /// every list); inside a list (ListDetailView) it only removes from that list.
     private func delete(atOffsets offsets: IndexSet) {
         let ids = offsets.map { sortedRestaurants[$0].id }
+        // At regular width the deleted spot may be the one in the detail column;
+        // drop back to the "Pick a Spot" prompt instead of a "removed" screen.
+        if let selected = selectedRestaurant, ids.contains(selected.id) {
+            selectedRestaurant = nil
+        }
         for id in ids {
             state.remove(id: id)
         }
