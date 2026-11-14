@@ -5,16 +5,16 @@
 
 import SwiftUI
 
-/// One list's spots: the Lists tab's middle split-view column (pushed when the
-/// split view is collapsed). Holds only the list ID and resolves the list from
-/// AppState each render — if the list is deleted while visible, the view
-/// degrades to its empty state instead of crashing on a stale copy.
+/// One list's spots, pushed inside the Lists tab's sidebar stack. Holds only the
+/// list ID and resolves the list from AppState each render — if the list is
+/// deleted while visible, the view degrades to its empty state instead of
+/// crashing on a stale copy.
 struct ListDetailView: View {
     @Environment(AppState.self) private var state
 
     let listID: UUID
 
-    /// Owned by ListsTabView: the restaurant detail is the split view's third
+    /// Owned by ListsTabView: the restaurant detail is the split view's detail
     /// column (or a sheet at compact width), which this view doesn't control.
     @Binding var selectedRestaurant: Restaurant?
 

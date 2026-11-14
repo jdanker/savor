@@ -51,31 +51,42 @@ private struct CompactRestaurantSheet: ViewModifier {
 
     @Binding var selection: Restaurant?
 
-    func body(content: Content) -> some View {
-        content.sheet(item: sheetSelection) { restaurant in
-            RestaurantDetailView(restaurantID: restaurant.id)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-        }
-    }
+    /// What the sheet is showing. Deliberately separate state, not a computed
+    /// binding over `selection`. Unfolding must close the sheet WITHOUT clearing
+    /// the selection, and the obvious approach (a binding whose setter ignores
+    /// nil after unfolding) failed on the Duo simulator. SwiftUI wrote the
+    /// dismissal nil through the binding captured while still compact, which
+    /// lost the selection. Owning the sheet's state means only our sync code
+    /// and a real user dismissal ever change it.
+    @State private var presented: Restaurant?
 
-    /// The selection, as seen by the sheet: visible only at compact width.
-    private var sheetSelection: Binding<Restaurant?> {
-        // Captured per render, so the binding SwiftUI holds always matches the
-        // size class it was built for. `nil` (not yet known) counts as compact.
-        let isCompact = horizontalSizeClass != .regular
-        return Binding(
-            get: { isCompact ? selection : nil },
-            set: { newValue in
-                // Unfolding forces the sheet closed, and SwiftUI writes nil back
-                // through this setter. Ignore that write so the detail column
-                // picks up the same restaurant. A real swipe-to-dismiss happens
-                // at compact width and still clears the selection.
-                if isCompact || newValue != nil {
-                    selection = newValue
+    /// `nil` (size class not yet known) counts as compact.
+    private var isCompact: Bool { horizontalSizeClass != .regular }
+
+    func body(content: Content) -> some View {
+        content
+            .sheet(item: $presented) { restaurant in
+                RestaurantDetailView(restaurantID: restaurant.id)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            }
+            // A row tap at compact width presents. Folding closed re-presents
+            // whatever the detail column was showing; unfolding dismisses the
+            // sheet, and the selection stays for the column.
+            .onChange(of: selection?.id, initial: true) { syncPresentation() }
+            .onChange(of: horizontalSizeClass) { syncPresentation() }
+            .onChange(of: presented?.id) { _, presentedID in
+                // The sheet emptied while compact: the user swiped it away, so
+                // the selection really is cleared. (While regular, it was our
+                // own unfold dismissal, and the selection must survive.)
+                if presentedID == nil, isCompact {
+                    selection = nil
                 }
             }
-        )
+    }
+
+    private func syncPresentation() {
+        presented = isCompact ? selection : nil
     }
 }
 

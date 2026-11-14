@@ -5,15 +5,15 @@ _Last updated: 2026-11-14_
 ## Works now (v1.3 + iPhone Duo branch `feature/iphone-duo-support`)
 - Tabs Spots / Lists / Search, each a NavigationSplitView: detail in a column at
   regular width (Duo open), medium/large sheet at compact (Duo closed, iPhones)
-- Lists tab is 3-column (lists → list → restaurant), driven by `List(selection:)`
+- Lists tab: lists → list pushes inside the sidebar; restaurant in the detail column
 - Built with the iOS 27.2 SDK: edge-to-edge on Duo, vertical tab bar/toolbar
 - Detail no longer crashes if the spot is deleted while open ("Spot Removed")
 - Photo carousel tiles size to the container (7:5, 80% width, max 420pt)
 
 ## In flight
-- Duo open-pose (inner display) visual check pending: closed pose, build, and
-  unit tests verified on the iPhone Duo sim (iOS 27.2 runtime). Pose switching
-  needs the Simulator Device menu.
+- Nothing mid-implementation. Duo verified on the sim (iOS 27.2 runtime) in
+  both poses, including fold/unfold handoff; poses switch in Xcode 27's Device
+  Hub app (Simulator.app is gone), not via simctl.
 
 ## Next
 1. Duo follow-ups in TODO.md (App Store screenshots due April 2027)

@@ -12,6 +12,7 @@ import SwiftUI
 /// which bills Google per session and shouldn't be triggered by casual browsing.
 struct SearchTabView: View {
     @Environment(AppState.self) private var state
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @State private var query = ""
     @State private var selectedRestaurant: Restaurant? = nil
@@ -56,7 +57,17 @@ struct SearchTabView: View {
                 }
             }
             .navigationTitle("Search")
-            .searchable(text: $query, prompt: "Search your saved spots")
+            // In a split-view sidebar (regular width), .automatic puts the field in
+            // a drawer that hides until you pull the list down. That's wrong for a
+            // tab whose whole job is search, so pin it visible there. Compact keeps
+            // .automatic, the same placement it had before the split view.
+            .searchable(
+                text: $query,
+                placement: horizontalSizeClass == .regular
+                    ? .navigationBarDrawer(displayMode: .always)
+                    : .automatic,
+                prompt: "Search your saved spots"
+            )
             .savorSidebarColumnWidth()
         } detail: {
             RestaurantDetailColumn(selection: selectedRestaurant)

@@ -14,7 +14,7 @@ SwiftUI pieces used here:
 | `@Environment(\.horizontalSizeClass)` | `.compact` / `.regular`; changes live on fold |
 | `NavigationSplitView` | 2- or 3-column layout at regular width; collapses to a stack at compact |
 | `preferredCompactColumn:` | which column shows when collapsed (pinned to `.sidebar` for 2-column tabs) |
-| `List(selection:)` | sidebar selection fills the next column; becomes a push when collapsed |
+| `NavigationStack` inside a column | drill-down (lists → list) stays within the sidebar at any width |
 | `containerRelativeFrame` | size a view as a fraction of its scroll/container width, not fixed points |
 
 **Why here**: A restaurant shortlist is a list/detail app, the textbook split-view
@@ -29,14 +29,17 @@ a raw `.sheet`.
 
 **Where**:
 - `Savor/Views/AdaptiveRestaurantDetail.swift:23` — `RestaurantDetailColumn` (regular-only detail column)
-- `Savor/Views/AdaptiveRestaurantDetail.swift:49` — `CompactRestaurantSheet`, incl. the unfold nil-write guard
+- `Savor/Views/AdaptiveRestaurantDetail.swift:49` — `CompactRestaurantSheet`: sheet owns its `@State`, synced via `onChange`
 - `Savor/Views/HomeListView.swift:61` — 2-column split, pinned compact column
-- `Savor/Views/ListsTabView.swift:34` — 3-column split, `List(selection:)`
+- `Savor/Views/ListsTabView.swift:34` — 2-column split with a `NavigationStack` inside the sidebar
 - `Savor/Views/PhotoCarouselView.swift:44` — container-relative photo tiles
 
 **Gotchas**:
-- Unfolding force-dismisses the sheet and SwiftUI writes `nil` through its
-  binding. Without the guard in `sheetSelection`, the open restaurant is lost.
+- Unfolding force-dismisses the sheet. If the sheet is bound straight to the
+  selection (even through a setter that ignores nil), SwiftUI may write that nil
+  through a stale binding and lose the restaurant. Give the sheet its own state
+  and clear the selection only on a dismissal at compact width.
+- Three columns don't fit Duo's inner display; the system silently hides one.
 - `.scrollTargetBehavior(.viewAligned)` does nothing without `.scrollTargetLayout()`
   on the stack inside the scroll view.
 

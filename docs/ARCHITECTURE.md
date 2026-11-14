@@ -42,9 +42,9 @@ Key invariants:
 - `RootTabView.swift` — tab shell: Spots / Lists / Search (plain tab, deliberately not `role: .search` — see decisions.md), `.tabBarMinimizeBehavior(.onScrollDown)`
 - `HomeListView.swift` — Spots tab (all saved spots, 2-column split view); defines `SortOption` + shared `apply` sort projection, swipe actions, drag-reorder (manual sort only), delete maps displayed offsets → stable IDs
 - `RestaurantRow.swift` — shared row card + common interactions (tap detail, Been swipe, `ListMembershipMenu` long-press); deletion stays with parents (meaning differs per surface)
-- `ListsTabView.swift` — Lists tab, 3-column split view (lists → list → restaurant): overview, create/rename/delete, Smart Sort trigger; list selection by *ID*
-- `ListDetailView.swift` — one list's spots (Lists tab content column; restaurant selection bound from parent); per-list manual reorder, swipe-delete = remove from list only
-- `SearchTabView.swift` — search tab content (2-column split view); local search over saved spots (name/type/summary), no API calls
+- `ListsTabView.swift` — Lists tab, 2-column split view (sidebar `NavigationStack`: lists → list; detail: restaurant): overview, create/rename/delete, Smart Sort trigger; pushes by list *ID*
+- `ListDetailView.swift` — one list's spots (pushed in the Lists sidebar stack; restaurant selection bound from parent); per-list manual reorder, swipe-delete = remove from list only
+- `SearchTabView.swift` — search tab content (2-column split view; field pinned visible at regular width); local search over saved spots (name/type/summary), no API calls
 - `AddRestaurantView.swift` — search sheet; 300ms debounced autocomplete through AppState's shared service, viewState enum (idle/loading/error/noResults/results)
 - `RestaurantDetailView.swift` — restaurant detail (split column or sheet); resolves by ID, shows "Spot Removed" if deleted while open; lazy enrichment via `.task` + `needsRefresh`, fractional star rendering
 - `AdaptiveRestaurantDetail.swift` — `RestaurantDetailColumn` + `.compactRestaurantSheet`: one selection drives the split detail column (regular) or the sheet (compact), surviving Duo fold/unfold; shared sidebar width
