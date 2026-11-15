@@ -2,13 +2,14 @@
 <!-- Overwritten at the end of every working session. Keep under ~20 lines. -->
 _Last updated: 2026-11-14_
 
-## Works now (1.3 — version bumped, not yet submitted; branch `feature/iphone-duo-support`)
+## Works now (1.3 — Duo merged in jdanker/savor#2; version bump + dark mode on `release/1.3`)
 - Tabs Spots / Lists / Search, each a NavigationSplitView: detail in a column at
   regular width (Duo open), medium/large sheet at compact (Duo closed, iPhones)
 - Lists tab: lists → list pushes inside the sidebar; restaurant in the detail column
 - Built with the iOS 27.2 SDK: edge-to-edge on Duo, vertical tab bar/toolbar
 - Detail no longer crashes if the spot is deleted while open ("Spot Removed")
 - Photo carousel tiles size to the container (7:5, 80% width, max 420pt)
+- Full dark mode: every SavorTheme token adapts (Color(light:dark:))
 
 ## In flight
 - Nothing mid-implementation. Duo verified on the sim (iOS 27.2 runtime) in

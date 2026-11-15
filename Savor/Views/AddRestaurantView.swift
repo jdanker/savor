@@ -48,7 +48,6 @@ struct AddRestaurantView: View {
             }
             .navigationTitle("Add Restaurant")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.light, for: .navigationBar)
             .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -85,7 +84,6 @@ struct AddRestaurantView: View {
                 }
             }
         }
-        .environment(\.colorScheme, .light)
     }
 
     private var searchBar: some View {
@@ -112,12 +110,12 @@ struct AddRestaurantView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
-        .background(Color.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(SavorTheme.fieldFill, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Color.white.opacity(0.55), lineWidth: 1)
+                .stroke(SavorTheme.cardStroke, lineWidth: 1)
         )
-        .shadow(color: Color.black.opacity(0.08), radius: 18, x: 0, y: 10)
+        .shadow(color: SavorTheme.cardShadow, radius: 18, x: 0, y: 10)
         .padding(.horizontal, 20)
         .padding(.top, 8)
     }
