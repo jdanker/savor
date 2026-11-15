@@ -100,7 +100,7 @@ private struct RestaurantDetailContent: View {
                     .fontWeight(.medium)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
-                    .background(Color.white.opacity(0.5))
+                    .background(SavorTheme.chipFill)
                     .foregroundStyle(SavorTheme.ink)
                     .clipShape(Capsule())
                 }
@@ -121,7 +121,7 @@ private struct RestaurantDetailContent: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .background(
-                isSelected ? SavorTheme.accent : Color.white.opacity(0.55)
+                isSelected ? SavorTheme.accent : SavorTheme.chipFill
             )
             .foregroundStyle(isSelected ? .white : SavorTheme.ink)
             .clipShape(Capsule())

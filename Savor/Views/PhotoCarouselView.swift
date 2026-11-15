@@ -54,7 +54,7 @@ struct PhotoCarouselView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                         .overlay(
                             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                .stroke(Color.white.opacity(0.4), lineWidth: 1)
+                                .stroke(SavorTheme.cardStroke, lineWidth: 1)
                         )
                 }
             }
@@ -67,7 +67,7 @@ struct PhotoCarouselView: View {
 
     private var placeholder: some View {
         RoundedRectangle(cornerRadius: 22, style: .continuous)
-            .fill(Color.white.opacity(0.5))
+            .fill(SavorTheme.chipFill)
             .frame(height: 200)
             .overlay {
                 ProgressView()

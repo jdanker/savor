@@ -98,3 +98,16 @@ first, but the inner display (~950pt) can't fit three columns, so the system
 hid the lists column even with `columnVisibility = .all`.
 Search pins its field visible (`.navigationBarDrawer(.always)`) at regular
 width, because the sidebar default hides it until you pull down.
+
+**2026-11 — Dark mode: adaptive palette defined in code, not Asset Catalog color
+sets.** Every `SavorTheme` token was a fixed light-mode RGB value, while
+system-drawn parts (grouped list rows, section headers, toolbar glass) followed
+the device appearance. In dark mode that gave dark-on-dark text in the Lists
+tab and white headers on a light background. `AddRestaurantView` had papered
+over it by forcing `.colorScheme(.light)`. Now each token is
+`Color(light:dark:)`, backed by a dynamic-provider `UIColor`. That keeps the
+whole palette, both appearances side by side, in one Swift file, so a palette
+change reads as a normal diff. Color sets are Apple's designer-facing default,
+but they spread the palette across one JSON file per color. The forced-light
+override is gone, and views no longer use raw white or black for surfaces or
+text, so a new screen can't silently ignore dark mode.

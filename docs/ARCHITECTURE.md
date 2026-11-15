@@ -66,7 +66,7 @@ Key invariants:
 - `RestaurantStore.swift` — thin JSON wrapper (`Documents/restaurants.json` + `Documents/lists.json`), ISO-8601 dates; decode failure quarantines the file (never overwritten by next save), missing file loads `[]`; directory injectable for tests
 
 ### Theme/
-- `SavorTheme.swift` — color palette, `SavorBackground`, `.savorCardStyle()` card modifier
+- `SavorTheme.swift` — light/dark color palette (every token adaptive via `Color(light:dark:)`), `SavorBackground`, `.savorCardStyle()` card modifier. Views use tokens, never raw `Color.white`/`.black` for surfaces or text
 
 ### SavorTests/ (Swift Testing, not XCTest)
 - `TestSupport.swift` — fixtures (whole-second dates for ISO-8601 round-trips), temp-dir store factory, `MockPlacesService` (keeps Google SDK out of unit tests)
