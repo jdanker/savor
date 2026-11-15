@@ -110,11 +110,7 @@ struct AddRestaurantView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
-        .background(SavorTheme.fieldFill, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(SavorTheme.cardStroke, lineWidth: 1)
-        )
+        .background(SavorTheme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .shadow(color: SavorTheme.cardShadow, radius: 18, x: 0, y: 10)
         .padding(.horizontal, 20)
         .padding(.top, 8)
@@ -129,11 +125,11 @@ struct AddRestaurantView: View {
 
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 30, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(SavorTheme.onAccent)
             }
 
             Text("Search for a restaurant to add")
-                .font(.system(.title3, design: .serif, weight: .bold))
+                .font(.title3.weight(.bold))
                 .foregroundStyle(SavorTheme.ink)
 
             Text("Pull in a real place, then keep it on your shortlist for the next dinner plan.")
@@ -160,7 +156,7 @@ struct AddRestaurantView: View {
         VStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.largeTitle)
-                .foregroundStyle(SavorTheme.rose)
+                .foregroundStyle(SavorTheme.accent)
             Text(state.placesError ?? "Something went wrong")
                 .font(.subheadline)
                 .foregroundStyle(SavorTheme.mutedInk)
@@ -200,11 +196,11 @@ struct AddRestaurantView: View {
                         HStack(spacing: 14) {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .fill(SavorTheme.accentSoft)
+                                    .fill(SavorTheme.Tint.peach.fill)
 
                                 Image(systemName: "fork.knife")
                                     .font(.headline.weight(.semibold))
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(SavorTheme.Tint.peach.glyph)
                             }
                             .frame(width: 46, height: 46)
 

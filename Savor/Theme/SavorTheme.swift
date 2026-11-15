@@ -10,59 +10,89 @@ import UIKit
 /// one JSON file per color). See decisions.md.
 ///
 /// Rule: views never use raw `Color.white` / `Color.black` for surfaces or text;
-/// add a token here instead. (White glyphs on an accent-filled shape are fine:
-/// they read in both modes.)
+/// add a token here instead. That includes glyphs and labels on an accent fill:
+/// use `onAccent`, because the dark-mode accent is light and needs dark text.
 enum SavorTheme {
     // Surfaces
     static let background = Color(
-        light: Color(red: 0.89, green: 0.89, blue: 0.87),
-        dark: Color(red: 0.11, green: 0.11, blue: 0.105)   // warm charcoal, not pure black
+        light: Color(hex: 0xFBEEDF),   // peach sand
+        dark: Color(hex: 0x211712)     // dark roast, not pure black
     )
-    /// Cards (restaurant rows, detail sections, list rows)
-    static let cardFill = Color(light: .white.opacity(0.62), dark: .white.opacity(0.07))
-    /// Hairline edge on cards, photos and fields
-    static let cardStroke = Color(light: .white.opacity(0.42), dark: .white.opacity(0.08))
-    /// Small capsules and placeholders (Website / Been tags, photo placeholder)
-    static let chipFill = Color(light: .white.opacity(0.55), dark: .white.opacity(0.10))
-    /// Text-entry surfaces (Add sheet search bar): a touch more opaque than chips
-    static let fieldFill = Color(light: .white.opacity(0.72), dark: .white.opacity(0.12))
-    /// Soft lift under cards. Dropped in dark mode: a dark shadow on a dark
-    /// background doesn't read, and the lighter card fill already separates it.
-    static let cardShadow = Color(light: .black.opacity(0.06), dark: .clear)
+    /// Anything that sits on the background: cards, list rows, chips, fields.
+    /// Opaque (the 1.x cards were translucent) so cards read the same over any
+    /// content scrolling behind them.
+    static let surface = Color(light: .white, dark: Color(hex: 0x30221B))
+    /// Soft warm lift under cards. Dropped in dark mode: a dark shadow on a dark
+    /// background doesn't read, and the lighter surface already separates it.
+    static let cardShadow = Color(light: Color(hex: 0x78461E).opacity(0.10), dark: .clear)
 
-    // Brand + semantic. The dark variants are lifted for contrast on charcoal,
-    // but accent stays dark enough that white glyphs on accent fills stay legible.
+    // Brand + semantic. In dark mode both fills get lighter, so anything drawn
+    // on top of them must use `onAccent` rather than white.
     static let accent = Color(
-        light: Color(red: 0.28, green: 0.39, blue: 0.55),
-        dark: Color(red: 0.47, green: 0.60, blue: 0.78)
+        light: Color(hex: 0xB84A24),   // terracotta
+        dark: Color(hex: 0xF0916A)
     )
-    /// Icon tiles behind white glyphs: muted in dark so they don't glare
-    static let accentSoft = Color(
-        light: Color(red: 0.55, green: 0.68, blue: 0.82),
-        dark: Color(red: 0.33, green: 0.44, blue: 0.58)
-    )
+    /// Text and glyphs on an `accent` or `olive` fill
+    static let onAccent = Color(light: .white, dark: Color(hex: 0x211712))
     static let olive = Color(
-        light: Color(red: 0.33, green: 0.49, blue: 0.36),
-        dark: Color(red: 0.52, green: 0.71, blue: 0.55)
-    )
-    static let gold = Color(
-        light: Color(red: 0.89, green: 0.73, blue: 0.24),
-        dark: Color(red: 0.93, green: 0.78, blue: 0.32)
-    )
-    static let rose = Color(
-        light: Color(red: 0.73, green: 0.45, blue: 0.42),
-        dark: Color(red: 0.87, green: 0.59, blue: 0.56)
+        light: Color(hex: 0x55683A),
+        dark: Color(hex: 0xA9BD82)
     )
 
     // Text
     static let ink = Color(
-        light: Color(red: 0.15, green: 0.16, blue: 0.17),
-        dark: Color(red: 0.93, green: 0.93, blue: 0.91)
+        light: Color(hex: 0x33241C),
+        dark: Color(hex: 0xF8EBDD)
     )
     static let mutedInk = Color(
-        light: Color(red: 0.36, green: 0.37, blue: 0.39),
-        dark: Color(red: 0.66, green: 0.67, blue: 0.69)
+        light: Color(hex: 0x6F5A4D),
+        dark: Color(hex: 0xC7B2A2)
     )
+}
+
+extension SavorTheme {
+    /// The soft fill behind an icon tile, paired with the glyph color that reads
+    /// on it. An enum (not three loose colors) so fill and glyph can't be mixed
+    /// across tints, and so the symbol mapping below is testable by case.
+    enum Tint: CaseIterable {
+        case peach
+        case sage
+        case butter
+
+        var fill: Color {
+            switch self {
+            case .peach: Color(light: Color(hex: 0xF8D9C4), dark: Color(hex: 0x4A2A1C))
+            case .sage: Color(light: Color(hex: 0xDDE5C8), dark: Color(hex: 0x33402A))
+            case .butter: Color(light: Color(hex: 0xF9E3A8), dark: Color(hex: 0x4A3A14))
+            }
+        }
+
+        var glyph: Color {
+            switch self {
+            case .peach: SavorTheme.accent
+            case .sage: SavorTheme.olive
+            case .butter: Color(light: Color(hex: 0x7A5810), dark: Color(hex: 0xE8C465))
+            }
+        }
+    }
+
+    /// Picks the tile tint for an SF Symbol name (`Restaurant.iconName`,
+    /// `RestaurantList.iconName`).
+    ///
+    /// Derived here from the symbol instead of stored on the model: a stored
+    /// tint would be a new persisted `Codable` field for something that is pure
+    /// presentation. Unknown symbols fall back to peach, so a new icon never
+    /// needs a theme change to render.
+    static func tint(forSymbol symbolName: String) -> Tint {
+        switch symbolName {
+        case "fish.fill", "wineglass.fill":
+            .sage
+        case "cup.and.saucer.fill", "sunrise.fill", "sun.max.fill":
+            .butter
+        default:
+            .peach
+        }
+    }
 }
 
 extension Color {
@@ -75,6 +105,18 @@ extension Color {
         self.init(uiColor: UIColor { traits in
             traits.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light)
         })
+    }
+
+    /// An opaque sRGB color from a `0xRRGGBB` literal. Hex (rather than 0–1
+    /// components) so palette values can be compared character for character
+    /// with the design sheet.
+    init(hex: UInt32) {
+        self.init(
+            .sRGB,
+            red: Double((hex >> 16) & 0xFF) / 255,
+            green: Double((hex >> 8) & 0xFF) / 255,
+            blue: Double(hex & 0xFF) / 255
+        )
     }
 }
 
@@ -93,11 +135,7 @@ private struct SavorCardModifier: ViewModifier {
         content
             .background(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(SavorTheme.cardFill)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(SavorTheme.cardStroke, lineWidth: 1)
+                    .fill(SavorTheme.surface)
             )
             .shadow(color: SavorTheme.cardShadow, radius: 16, x: 0, y: 8)
     }

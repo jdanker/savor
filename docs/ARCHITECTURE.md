@@ -72,6 +72,7 @@ Key invariants:
 - `TestSupport.swift` — fixtures (whole-second dates for ISO-8601 round-trips), temp-dir store factory, `MockPlacesService` (keeps Google SDK out of unit tests)
 - `SmartCategoryTests.swift` — classifier rules: type tables, priority order, price fallback
 - `SortOptionTests.swift` — shared sort projection: nil-sentinel ordering, no-location no-op
+- `SavorThemeTintTests.swift` — icon-symbol → tile-tint mapping; pins the string coupling between model `iconName`s and `SavorTheme.tint(forSymbol:)`
 - `AppStateListTests.swift` — list CRUD, membership integrity (dedupe, strip-on-delete), Smart Sort semantics (idempotent re-run, manual corrections survive, rename-safe), persistence reload
 - `PersistenceFixtures.swift` — APPEND-ONLY frozen JSON of every shipped on-disk format (v1.0/v1.1/v1.2, derived from git history); never edited to make a test pass
 - `PersistenceCompatibilityTests.swift` — the data-durability gate: every shipped format decodes losslessly, round-trips intact, tolerates unknown keys; corrupt files quarantined not lost

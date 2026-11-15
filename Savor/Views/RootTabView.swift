@@ -27,6 +27,11 @@ struct RootTabView: View {
         // reappears on scroll-up
         .tabBarMinimizeBehavior(.onScrollDown)
         .tint(SavorTheme.accent)
+        // Set once at the root: every system text style below (sheets included,
+        // they inherit the environment) renders in SF Rounded. Views keep using
+        // semantic styles like .headline, so Dynamic Type still works. UIKit-drawn
+        // text (tab bar labels) is not affected.
+        .fontDesign(.rounded)
     }
 }
 #if DEBUG

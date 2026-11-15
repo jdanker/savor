@@ -102,7 +102,6 @@ struct HomeListView: View {
                     VStack(spacing: 2) {
                         Text("Savor")
                             .font(.title.weight(.bold))
-                            .fontDesign(.serif)
                             .foregroundStyle(SavorTheme.ink)
                         Text("Your restaurant shortlist")
                             .font(.caption)
@@ -184,11 +183,11 @@ struct HomeListView: View {
 
                 Image(systemName: "fork.knife")
                     .font(.system(size: 30, weight: .semibold))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(SavorTheme.onAccent)
             }
 
             Text("Build your first shortlist")
-                .font(.system(.title2, design: .serif, weight: .bold))
+                .font(.title2.weight(.bold))
                 .foregroundStyle(SavorTheme.ink)
 
             Text("Save restaurants that look promising, then mark the ones that were actually worth the reservation.")
@@ -205,7 +204,7 @@ struct HomeListView: View {
                     .padding(.horizontal, 18)
                     .padding(.vertical, 12)
                     .background(SavorTheme.accent, in: Capsule())
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(SavorTheme.onAccent)
             }
         }
         .padding(28)

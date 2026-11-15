@@ -71,7 +71,7 @@ private struct RestaurantDetailContent: View {
     private var heroSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(restaurant.name)
-                .font(.system(.largeTitle, design: .serif, weight: .bold))
+                .font(.largeTitle.weight(.bold))
                 .foregroundStyle(SavorTheme.ink)
 
             metadataRow
@@ -100,7 +100,7 @@ private struct RestaurantDetailContent: View {
                     .fontWeight(.medium)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
-                    .background(SavorTheme.chipFill)
+                    .background(SavorTheme.surface)
                     .foregroundStyle(SavorTheme.ink)
                     .clipShape(Capsule())
                 }
@@ -121,9 +121,9 @@ private struct RestaurantDetailContent: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .background(
-                isSelected ? SavorTheme.accent : SavorTheme.chipFill
+                isSelected ? SavorTheme.accent : SavorTheme.surface
             )
-            .foregroundStyle(isSelected ? .white : SavorTheme.ink)
+            .foregroundStyle(isSelected ? SavorTheme.onAccent : SavorTheme.ink)
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -197,11 +197,11 @@ private struct RestaurantDetailContent: View {
 
                 ZStack(alignment: .leading) {
                     Image(systemName: "star")
-                        .foregroundStyle(SavorTheme.gold.opacity(0.28))
+                        .foregroundStyle(SavorTheme.accent.opacity(0.28))
 
                     GeometryReader { geo in
                         Image(systemName: "star.fill")
-                            .foregroundStyle(SavorTheme.gold)
+                            .foregroundStyle(SavorTheme.accent)
                             .frame(width: geo.size.width * filled, alignment: .leading)
                             .clipped()
                     }
