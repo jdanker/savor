@@ -43,12 +43,14 @@ struct RestaurantRow: View {
     private var card: some View {
         HStack(alignment: .top, spacing: 14) {
             ZStack {
+                let tint = SavorTheme.tint(forSymbol: restaurant.iconName)
+
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(SavorTheme.accentSoft)
+                    .fill(tint.fill)
 
                 Image(systemName: restaurant.iconName)
                     .font(.title3.weight(.semibold))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(tint.glyph)
             }
             .frame(width: 54, height: 54)
 
@@ -109,7 +111,7 @@ struct RestaurantRow: View {
             }
         }
         .font(.caption2)
-        .foregroundStyle(SavorTheme.gold)
+        .foregroundStyle(SavorTheme.accent)
     }
 
     @ViewBuilder

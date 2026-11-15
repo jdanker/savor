@@ -58,7 +58,7 @@ struct ListsTabView: View {
                                     // default, its rows went system-dark in dark mode under
                                     // SavorTheme.ink text. Themed fill keeps rows and text
                                     // on the same palette in both appearances.
-                                    .listRowBackground(SavorTheme.cardFill)
+                                    .listRowBackground(SavorTheme.surface)
                                 }
                                 .onDelete { offsets in
                                     let ids = offsets.map { state.lists[$0].id }

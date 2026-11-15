@@ -52,10 +52,6 @@ struct PhotoCarouselView: View {
                                 .scaledToFill()
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                .stroke(SavorTheme.cardStroke, lineWidth: 1)
-                        )
                 }
             }
             // .viewAligned snaps only to children of a scrollTargetLayout. Without
@@ -67,7 +63,7 @@ struct PhotoCarouselView: View {
 
     private var placeholder: some View {
         RoundedRectangle(cornerRadius: 22, style: .continuous)
-            .fill(SavorTheme.chipFill)
+            .fill(SavorTheme.surface)
             .frame(height: 200)
             .overlay {
                 ProgressView()
