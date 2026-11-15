@@ -73,6 +73,36 @@ yet, despite `savor-api` existing and being deployed. Don't assume requests are
 proxied through Go unless you've checked `docs/STATE.md`. The migration seam is the
 `PlacesProviding` protocol — see `docs/concepts/placesproviding-seam.md`.
 
+## Public policy pages (App Store compliance — never let these drift)
+
+App Store Connect links to the privacy policy and support page, and App Review
+checks them against what the app actually does. They exist in two places that must
+stay identical (body text):
+
+- **Repo copies (canonical):** `PrivacyPolicy.md`, `SupportPage.md`
+- **Live site:** `jdanker/jdanker-core` (Hugo, not checked out locally) →
+  `content/savor/privacy.md` (served at jdanker.com/savor/privacy) and
+  `content/savor/SupportPage.md` (/savor/support). Same body plus Hugo front matter.
+  A push to `master` deploys via Azure Static Web Apps; PRs get a preview build.
+
+**Rule:** any change that alters what these pages describe — data stored on device
+(new `Codable` fields or files), anything sent off-device (new API calls or fields
+sent), a new permission or `Info.plist` usage string, or a user-facing feature the
+support FAQ covers — must, in the same piece of work:
+
+1. Update `PrivacyPolicy.md` / `SupportPage.md` here (new Effective Date for policy changes).
+2. Open a PR on `jdanker/jdanker-core` syncing the body (keep the front matter, set
+   `date`). Before overwriting, diff the old site copy against the old repo copy:
+   fixes made only on the site must be carried back, not lost. Never push to its
+   `master` directly; the PR + preview is the review gate.
+3. Check `Savor/PrivacyInfo.xcprivacy` (collected data types, required-reason APIs)
+   and flag whether the App Store Connect **App Privacy** label must change. Data
+   only "collected" per Apple = it leaves the device; on-device-only use (e.g.
+   distance sort's location) is not. The label edit is the user's step in ASC.
+
+Verify every claim against code before writing it (the 1.1 policy described a
+personal rating and notes the app never had).
+
 ## Living docs maintenance
 
 `docs/` is the project's memory and the user's learning record — written for a
