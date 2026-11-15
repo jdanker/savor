@@ -102,4 +102,6 @@ If this policy changes materially, the updated version will be published at the 
 For privacy questions or concerns, contact:
 
 **Jahred Danker**
-[jahrede@gmail.com]
+
+
+jahrede@gmail.com
