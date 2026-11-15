@@ -76,6 +76,9 @@ Key invariants:
 - `PersistenceFixtures.swift` — APPEND-ONLY frozen JSON of every shipped on-disk format (v1.0/v1.1/v1.2, derived from git history); never edited to make a test pass
 - `PersistenceCompatibilityTests.swift` — the data-durability gate: every shipped format decodes losslessly, round-trips intact, tolerates unknown keys; corrupt files quarantined not lost
 
+### tools/ (not in the app target)
+- `promo/render.swift` — App Store promo panels: frames raw sim screenshots (headline, palette backdrop, drawn generic bezel) via SwiftUI `ImageRenderer`, flattens alpha (ASC rejects it); `swift tools/promo/render.swift [release-dir]` from repo root
+
 ## Integration boundary (Phase 1 target)
 Today the app calls Google directly. Phase 1 replaces `PlacesService` with a
 `PlacesProviding` impl that calls savor-api; the API key leaves the device.
